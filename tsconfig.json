@@ -21,7 +21,9 @@
       "@content/*": ["./src/content/*"],
       "@ui/*": ["./src/ui/*"],
       "@test/*": ["./test/*"]
-    }
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "include": ["src", "scripts", "test", "eslint.config.ts"]
 }

@@ -61,6 +61,8 @@ export interface BirthInput {
   utcOffset: number;
   /** Optional IANA zone, kept only to show it back to the person. */
   timeZone?: string;
+  /** Optional birth place as displayed, e.g. `Forlì, Italy`. Display only. */
+  place?: string;
 }
 
 /** One planet's position on the gate wheel. */
