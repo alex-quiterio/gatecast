@@ -4,8 +4,11 @@ import { validateBirthInput } from '@engine';
 /** Longest name accepted from a link or the form. */
 export const MAX_NAME_LENGTH = 80;
 
+/** Longest birth place display string accepted from a link or the form. */
+export const MAX_PLACE_LENGTH = 120;
+
 /**
- * Encode a person as a query string (`n=&d=&t=&u=&z=`), the form used inside
+ * Encode a person as a query string (`n=&d=&t=&u=&z=&p=`), the form used inside
  * share links. The result is already percent-encoded.
  */
 export function encodePerson(input: BirthInput): string {
@@ -15,6 +18,7 @@ export function encodePerson(input: BirthInput): string {
   params.set('t', input.time);
   params.set('u', String(input.utcOffset));
   if (input.timeZone) params.set('z', input.timeZone);
+  if (input.place) params.set('p', input.place);
   return params.toString();
 }
 
@@ -35,6 +39,9 @@ export function decodePerson(source: URLSearchParams | string): BirthInput | und
   const zone = params.get('z');
   const input: BirthInput = { name, date, time, utcOffset };
   if (zone && zone.length <= 64 && /^[A-Za-z0-9_+\-/]+$/.test(zone)) input.timeZone = zone;
+  // eslint-disable-next-line no-control-regex
+  const place = (params.get('p') ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  if (place) input.place = place.slice(0, MAX_PLACE_LENGTH);
   try {
     if (validateBirthInput(input).length > 0) return undefined;
   } catch {

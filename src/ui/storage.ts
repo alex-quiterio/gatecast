@@ -64,6 +64,7 @@ function parsePeople(raw: string | null): SavedPerson[] {
     params.set('t', c['time']);
     params.set('u', String(c['utcOffset']));
     if (typeof c['timeZone'] === 'string') params.set('z', c['timeZone']);
+    if (typeof c['place'] === 'string') params.set('p', c['place']);
     const input = decodePerson(params);
     if (!input) continue;
     const id = personId(input);

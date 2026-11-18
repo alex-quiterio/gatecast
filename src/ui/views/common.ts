@@ -1,5 +1,4 @@
 import type { Activation, CenterName, ChannelInfo, ChartType } from '@/types';
-import { h } from '@ui/dom';
 
 /** `SolarPlexus` becomes `Solar Plexus`. */
 export function centerLabel(center: CenterName): string {
@@ -21,42 +20,12 @@ export function typeClass(type: ChartType): string {
   return `type-${type.toLowerCase().replace(/\s+/g, '-')}`;
 }
 
-/** A small round "i" button that opens a tooltip (and, in views that listen, the detail panel). */
-export function infoButton(key: string, label: string): HTMLButtonElement {
-  return h(
-    'button',
-    { type: 'button', class: 'info', data: { tip: key }, 'aria-label': `About ${label}` },
-    'i',
-  );
-}
-
-/** A pill-shaped button carrying a tooltip key. */
-export function chip(key: string, text: string, extraClass = ''): HTMLButtonElement {
-  return h(
-    'button',
-    { type: 'button', class: `chip ${extraClass}`.trim(), data: { tip: key } },
-    text,
-  );
-}
-
-/** Build a `<section>` with a heading. */
-export function section(
-  id: string,
-  title: string,
-  ...children: Parameters<typeof h>[2][]
-): HTMLElement {
-  return h(
-    'section',
-    { class: 'block', 'aria-labelledby': id },
-    h('h2', { id }, title),
-    ...children,
-  );
-}
-
 /** Trigger a file download from text content. */
 export function downloadText(filename: string, text: string, mime: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
-  const link = h('a', { href: url, download: filename });
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -69,7 +38,9 @@ export async function copyText(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    const area = h('textarea', { 'aria-hidden': 'true', class: 'sr-only' });
+    const area = document.createElement('textarea');
+    area.setAttribute('aria-hidden', 'true');
+    area.className = 'sr-only';
     area.value = text;
     document.body.appendChild(area);
     area.select();
@@ -86,6 +57,7 @@ export async function copyText(text: string): Promise<boolean> {
 
 /** Format a birth input for display. */
 export function describeBirth(input: {
+  place?: string | undefined;
   date: string;
   time: string;
   utcOffset: number;
@@ -96,5 +68,6 @@ export function describeBirth(input: {
   const hours = Math.floor(abs);
   const minutes = Math.round((abs - hours) * 60);
   const offset = `UTC${sign}${hours}${minutes ? ':' + String(minutes).padStart(2, '0') : ''}`;
-  return `${input.date} ${input.time} (${input.timeZone ? input.timeZone + ', ' : ''}${offset})`;
+  const moment = `${input.date} ${input.time} (${input.timeZone ? input.timeZone + ', ' : ''}${offset})`;
+  return input.place ? `${input.place} · ${moment}` : moment;
 }

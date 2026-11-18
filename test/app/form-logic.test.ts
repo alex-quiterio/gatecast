@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { formatOffset, resolveOffset, validateForm, type FormValues } from '@ui/form';
+import { formatOffset, resolveOffset, validateForm, type FormValues } from '@ui/form-logic';
 
 const valid: FormValues = {
   name: 'Example Person',
