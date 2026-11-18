@@ -45,7 +45,9 @@ export function SavedList({
                   aria-current={person.id === activeId ? 'true' : undefined}
                   onClick={() => onOpen(person.input)}
                 >
-                  <span class="saved-name">{label}</span>
+                  <span class="saved-name" title={label}>
+                    {label}
+                  </span>
                   {detailed ? <span class="saved-meta">{describeBirth(person.input)}</span> : null}
                 </button>
                 <button

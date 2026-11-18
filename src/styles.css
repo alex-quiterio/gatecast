@@ -1525,9 +1525,13 @@ tr[class*='dyn-'] > :first-child {
   padding: 0;
   margin: 0;
   display: grid;
+  /* A bare 1fr column refuses to shrink below its content, so a long name
+     would stretch the row past its container instead of ending in an ellipsis. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
 }
 .saved-list li {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 2px;
