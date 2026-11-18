@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Gatecast: your Human Design chart, in your browser</title>
+    <meta
+      name="description"
+      content="Cast your Human Design chart. In your browser. Nothing leaves it. BodyGraph, gate wheel, relationship comparison and a full reference library, computed locally."
+    />
+    <meta name="theme-color" content="#0d0d1a" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Gatecast" />
+    <meta
+      property="og:description"
+      content="Cast your Human Design chart. In your browser. Nothing leaves it."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Gatecast" />
+    <meta
+      name="twitter:description"
+      content="Cast your Human Design chart. In your browser. Nothing leaves it."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <div id="app"></div>
+    <noscript>
+      <p class="noscript">
+        Gatecast needs JavaScript to compute your chart locally in your browser. Nothing is ever
+        uploaded.
+      </p>
+    </noscript>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
