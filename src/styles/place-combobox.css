@@ -1,0 +1,119 @@
+/* Place search combobox + time zone select. Tokens only; no hard-coded colours. */
+.pc,
+.zs {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.pc-label,
+.zs-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gc-muted);
+}
+.pc-box {
+  position: relative;
+}
+.pc-input {
+  /* 16px stops iOS Safari from zooming on focus. */
+  font-size: 16px;
+}
+.zs-select {
+  font-size: 16px;
+}
+.pc-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.pc-list,
+.pc-note {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 0;
+  background: var(--gc-bg-2, Canvas);
+  color: var(--gc-text, CanvasText);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  font-family: var(--gc-font-sans);
+}
+.pc-list {
+  list-style: none;
+  max-height: min(18rem, 50vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.pc-list[hidden] {
+  display: none;
+}
+.pc-option {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  min-height: 40px;
+  align-content: center;
+  cursor: pointer;
+  border-top: 1px solid var(--gc-border);
+}
+.pc-option:first-child {
+  border-top: 0;
+}
+.pc-option[aria-selected='true'] {
+  background: var(--gc-surface-2);
+}
+.pc-name {
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+.pc-name strong {
+  font-weight: 700;
+}
+.pc-meta {
+  font-size: 0.8rem;
+  color: var(--gc-muted);
+  overflow-wrap: anywhere;
+}
+.pc-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: var(--gc-muted);
+}
+.pc-error {
+  color: var(--gc-error);
+}
+.pc-retry {
+  min-height: 32px;
+  padding: 0 12px;
+  font: inherit;
+  color: var(--gc-text);
+  background: transparent;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  cursor: pointer;
+}
+.pc-retry:hover {
+  background: var(--gc-surface-2);
+}
+.pc-retry:focus-visible {
+  outline: 2px solid var(--gc-focus);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .pc-option {
+    min-height: 44px;
+  }
+  .pc-retry {
+    min-height: 44px;
+  }
+}
