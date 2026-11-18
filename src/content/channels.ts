@@ -2,7 +2,7 @@ import { CHANNEL_LIST, MOTOR_CENTERS, channelKey } from '@engine/data';
 import type { ChannelInfo } from '@/types';
 import type { ChannelContent, ChannelType, Circuit, Stream } from './schema';
 
-/** [gateA, gateB, name, circuit, stream or '', summary] */
+/** [gateA, gateB, name, circuit, stream or '' (Integration has none), summary] */
 type ChannelSeed = readonly [number, number, string, Circuit, Stream | '', string];
 
 const SEEDS: readonly ChannelSeed[] = [
@@ -11,7 +11,7 @@ const SEEDS: readonly ChannelSeed[] = [
     8,
     'Inspiration',
     'Individual',
-    '',
+    'Knowing',
     'A creative role model who inspires others by living and expressing in a personal way.',
   ],
   [
@@ -19,7 +19,7 @@ const SEEDS: readonly ChannelSeed[] = [
     14,
     'The Beat',
     'Individual',
-    '',
+    'Knowing',
     'A steady inner direction paired with energy for meaningful work, like keeping a beat others can follow.',
   ],
   [
@@ -27,7 +27,7 @@ const SEEDS: readonly ChannelSeed[] = [
     60,
     'Mutation',
     'Individual',
-    '',
+    'Knowing',
     'Energy that pulses in cycles and brings sudden, original change once its timing arrives.',
   ],
   [
@@ -51,7 +51,7 @@ const SEEDS: readonly ChannelSeed[] = [
     59,
     'Intimacy',
     'Tribal',
-    '',
+    'Defense',
     'Emotional and physical closeness that grows by lowering barriers and letting bonds form over time.',
   ],
   [
@@ -82,8 +82,8 @@ const SEEDS: readonly ChannelSeed[] = [
     10,
     34,
     'Exploration',
-    'Integration',
-    '',
+    'Individual',
+    'Centering',
     'A strong drive to follow your own path, learning about life by acting on what feels right.',
   ],
   [
@@ -107,7 +107,7 @@ const SEEDS: readonly ChannelSeed[] = [
     22,
     'Openness',
     'Individual',
-    '',
+    'Knowing',
     'A mood-dependent voice with emotional grace, expressing itself best when the feeling is right.',
   ],
   [
@@ -147,7 +147,7 @@ const SEEDS: readonly ChannelSeed[] = [
     49,
     'Synthesis',
     'Tribal',
-    '',
+    'Ego',
     'Sensitivity to needs and values that shapes how people share resources and renegotiate agreements.',
   ],
   [
@@ -162,8 +162,8 @@ const SEEDS: readonly ChannelSeed[] = [
     20,
     57,
     'The Brainwave',
-    'Integration',
-    '',
+    'Individual',
+    'Knowing',
     'Fast, intuitive awareness expressed in the present, sensing what is true right now.',
   ],
   [
@@ -171,7 +171,7 @@ const SEEDS: readonly ChannelSeed[] = [
     45,
     'Money',
     'Tribal',
-    '',
+    'Ego',
     'A drive to manage resources and a talent for gathering people and material support around shared aims.',
   ],
   [
@@ -179,7 +179,7 @@ const SEEDS: readonly ChannelSeed[] = [
     43,
     'Structuring',
     'Individual',
-    '',
+    'Knowing',
     'Insight that arrives suddenly and is shaped into words, sometimes ahead of what others can follow.',
   ],
   [
@@ -187,7 +187,7 @@ const SEEDS: readonly ChannelSeed[] = [
     61,
     'Awareness',
     'Individual',
-    '',
+    'Knowing',
     'A thinking mind that ponders deep questions in cycles, searching for understanding and inspiration.',
   ],
   [
@@ -195,7 +195,7 @@ const SEEDS: readonly ChannelSeed[] = [
     51,
     'Initiation',
     'Individual',
-    '',
+    'Centering',
     'Courageous, innocent energy that leaps into new experiences and shakes up the status quo.',
   ],
   [
@@ -203,7 +203,7 @@ const SEEDS: readonly ChannelSeed[] = [
     44,
     'Surrender',
     'Tribal',
-    '',
+    'Ego',
     'A knack for transmitting what works, linking memory of the past to persuasion and the willingness to follow.',
   ],
   [
@@ -211,7 +211,7 @@ const SEEDS: readonly ChannelSeed[] = [
     50,
     'Preservation',
     'Tribal',
-    '',
+    'Defense',
     'Caring for others and for shared values, protecting what keeps a group nourished and stable.',
   ],
   [
@@ -219,7 +219,7 @@ const SEEDS: readonly ChannelSeed[] = [
     38,
     'Struggle',
     'Individual',
-    '',
+    'Knowing',
     'A determined drive to find purpose by wrestling with difficulty, often fighting for what matters.',
   ],
   [
@@ -243,7 +243,7 @@ const SEEDS: readonly ChannelSeed[] = [
     54,
     'Transformation',
     'Tribal',
-    '',
+    'Ego',
     'Ambition combined with a sense for what lasts, helping people and projects grow and move up.',
   ],
   [
@@ -267,7 +267,7 @@ const SEEDS: readonly ChannelSeed[] = [
     40,
     'Community',
     'Tribal',
-    '',
+    'Ego',
     'A bargain-making bond that exchanges effort and loyalty for friendship and support.',
   ],
   [
@@ -275,7 +275,7 @@ const SEEDS: readonly ChannelSeed[] = [
     55,
     'Emoting',
     'Individual',
-    '',
+    'Knowing',
     'Moody emotional waves that provoke and inspire, carrying creative and spirited energy.',
   ],
   [

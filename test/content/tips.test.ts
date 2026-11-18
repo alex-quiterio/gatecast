@@ -9,6 +9,7 @@ import {
   PROFILES,
   TIP_BODY_MAX,
   TYPES,
+  lineMeaning,
   parseTipKey,
   tipFor,
 } from '@content';
@@ -43,6 +44,28 @@ describe('tipFor', () => {
     for (const d of Object.keys(DEFINITIONS)) expectValid(`definition:${d}`);
     for (const d of Object.keys(DYNAMICS)) expectValid(`dynamic:${d}`);
     for (const g of GLOSSARY) expectValid(`term:${g.term}`);
+    for (const c of ['Individual', 'Tribal', 'Collective', 'Integration'])
+      expectValid(`circuit:${c}`);
+    for (const s of ['Knowing', 'Centering', 'Ego', 'Defense', 'Logic', 'Abstract'])
+      expectValid(`stream:${s}`);
+    for (const a of ['Right Angle', 'Juxtaposition', 'Left Angle']) expectValid(`cross:${a}`);
+    for (const q of ['Initiation', 'Civilization', 'Duality', 'Mutation'])
+      expectValid(`quarter:${q}`);
+    expect(tipFor('circuit:Tribal')?.title).toBe('Tribal circuit');
+    expect(tipFor('quarter:Initiation')?.title).toBe('Quarter of Initiation');
+    expect(tipFor('cross:Right Angle')?.title).toBe('Right Angle Cross');
+    expect(tipFor('stream:Ego')?.title).toBe('Ego stream');
+  });
+
+  test('gateline tips resolve whenever the line exists', () => {
+    for (let gate = 1; gate <= 64; gate++)
+      for (let line = 1; line <= 6; line++) {
+        const meaning = lineMeaning(gate, line);
+        if (meaning) {
+          expectValid(`gateline:${gate}.${line}`);
+          expect(tipFor(`gateline:${gate}.${line}`)?.title).toContain(`Gate ${gate}.${line} · `);
+        } else expect(tipFor(`gateline:${gate}.${line}`)).toBeUndefined();
+      }
   });
 
   test('terms are case-insensitive', () => {
@@ -77,6 +100,15 @@ describe('tipFor', () => {
       'unknown:1',
       'gate:__proto__',
       'term:constructor',
+      'circuit:Nope',
+      'stream:Nope',
+      'cross:Nope',
+      'quarter:Nope',
+      'gateline:99.9',
+      'gateline:36.7',
+      'gateline:36.0',
+      'gateline:36',
+      'gateline:abc.1',
     ]) {
       expect(tipFor(key)).toBeUndefined();
     }

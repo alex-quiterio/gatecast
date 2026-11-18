@@ -3,6 +3,9 @@ import type { AuthorityName, ChartType, DefinitionName, DynamicKind } from '@/ty
 import { AUTHORITIES } from './authorities';
 import { CENTERS } from './centers';
 import { CHANNELS } from './channels';
+import { CIRCUITS, CIRCUIT_ORDER, STREAMS, STREAM_ORDER } from './circuits';
+import { CROSS_ANGLES, QUARTERS } from './crosses';
+import { lineMeaning } from './gate-lines';
 import { TYPES } from './chart-types';
 import { DEFINITIONS } from './definitions';
 import { DYNAMICS } from './dynamics';
@@ -12,6 +15,7 @@ import { LINES } from './lines';
 import { PLANETS } from './planets';
 import { PROFILES } from './profiles';
 import type { Tip } from './schema';
+import type { Circuit, CrossAngle, Quarter, Stream } from './schema';
 
 /** Longest allowed tooltip body, in characters. */
 export const TIP_BODY_MAX = 220;
@@ -124,6 +128,39 @@ function lookup(family: string, id: string): Tip | undefined {
       const d = name && DYNAMICS[name];
       return d && { title: d.title, body: clip(d.summary) };
     }
+    case 'circuit': {
+      const name = match<Circuit>(CIRCUIT_ORDER, id);
+      const c = name && CIRCUITS[name];
+      return c && { title: `${c.title} circuit`, body: clip(`${c.tagline}. ${c.summary}`) };
+    }
+    case 'stream': {
+      const name = match<Stream>(STREAM_ORDER, id);
+      const s = name && STREAMS[name];
+      return s && { title: `${s.title} stream`, body: clip(s.summary) };
+    }
+    case 'cross': {
+      const name = match(Object.keys(CROSS_ANGLES) as CrossAngle[], id);
+      const a = name && CROSS_ANGLES[name];
+      return a && { title: `${a.title} Cross`, body: clip(a.summary) };
+    }
+    case 'quarter': {
+      const name = match(Object.keys(QUARTERS) as Quarter[], id);
+      const q = name && QUARTERS[name];
+      return q && { title: q.title, body: clip(`${q.theme}. ${q.summary}`) };
+    }
+    case 'gateline': {
+      const m = /^(\d+)\.(\d)$/.exec(id);
+      if (!m) return undefined;
+      const gate = GATES[Number(m[1])];
+      const line = lineMeaning(Number(m[1]), Number(m[2]));
+      return (
+        gate &&
+        line && {
+          title: `Gate ${m[1]}.${m[2]} · ${gate.name}: ${line.title}`,
+          body: clip(line.summary),
+        }
+      );
+    }
     case 'term': {
       const wanted = id.toLowerCase();
       const entry = GLOSSARY.find((g) => g.term.toLowerCase() === wanted);
@@ -139,7 +176,8 @@ function lookup(family: string, id: string): Tip | undefined {
  * `TIP_BODY_MAX` characters). Families: `gate:20`, `channel:20-34`,
  * `center:Throat`, `planet:Sun`, `type:Generator`, `authority:Sacral`,
  * `profile:5/1`, `line:3`, `definition:Split Definition`,
- * `dynamic:electromagnetic` and `term:Strategy`.
+ * `dynamic:electromagnetic`, `term:Strategy`, `circuit:Tribal`, `stream:Ego`,
+ * `cross:Right Angle`, `quarter:Initiation` and `gateline:36.6`.
  * @returns undefined for an unknown family or id.
  */
 export function tipFor(key: string): Tip | undefined {

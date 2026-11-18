@@ -122,6 +122,51 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
       'A group of channels that share a theme, such as Individual, Tribal, Collective or Integration.',
   },
   {
+    term: 'Stream',
+    definition:
+      'A subgroup of a circuit: Knowing and Centering within Individual, Ego and Defense within Tribal, Logic and Abstract within Collective.',
+  },
+  {
+    term: 'Individual circuit',
+    definition:
+      'The circuit of originality and inner knowing, made of the Knowing and Centering streams. It tends to run on its own timing.',
+  },
+  {
+    term: 'Tribal circuit',
+    definition:
+      'The circuit of community, loyalty and mutual support, made of the Ego and Defense streams.',
+  },
+  {
+    term: 'Collective circuit',
+    definition:
+      'The circuit of sharing what has been learned, made of the Logic stream (patterns and proof) and the Abstract stream (experience).',
+  },
+  {
+    term: 'Integration circuit',
+    definition:
+      'Four channels (10-20, 10-57, 20-34 and 34-57) about staying true to yourself in the moment. It has no streams.',
+  },
+  {
+    term: 'Quarter',
+    definition:
+      'One of four 16-gate arcs of the wheel (Initiation, Civilization, Duality, Mutation), set by the Personality Sun gate. It colors the theme of the cross.',
+  },
+  {
+    term: 'Right Angle',
+    definition:
+      'The cross angle of profiles 1/3, 1/4, 2/4, 2/5, 3/5 and 3/6, often described as a personal path.',
+  },
+  {
+    term: 'Left Angle',
+    definition:
+      'The cross angle of profiles 4/6, 5/1, 5/2, 6/2 and 6/3, often described as a transpersonal path shaped through others.',
+  },
+  {
+    term: 'Juxtaposition',
+    definition:
+      'The cross angle of profile 4/1, often described as a fixed course with a single steady theme.',
+  },
+  {
     term: 'Electromagnetic',
     definition:
       'A relationship dynamic where two people each hold one gate of a channel and complete it together.',

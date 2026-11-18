@@ -76,21 +76,20 @@ describe('channels', () => {
     }
   });
 
-  test('stream is set exactly for Collective channels', () => {
+  test('stream is set for every channel except Integration', () => {
     for (const c of Object.values(CHANNELS)) {
-      if (c.circuit === 'Collective')
-        expect(c.stream === 'Logic' || c.stream === 'Abstract').toBe(true);
-      else expect(c.stream).toBeUndefined();
+      if (c.circuit === 'Integration') expect(c.stream).toBeUndefined();
+      else expect(c.stream).toBeDefined();
     }
   });
 
   test('circuit counts match the system', () => {
     const count = (circuit: string): number =>
       Object.values(CHANNELS).filter((c) => c.circuit === circuit).length;
-    expect(count('Individual')).toBe(9);
+    expect(count('Individual')).toBe(11);
     expect(count('Tribal')).toBe(7);
     expect(count('Collective')).toBe(14);
-    expect(count('Integration')).toBe(6);
+    expect(count('Integration')).toBe(4);
   });
 
   test('channel type follows the centers it joins', () => {
