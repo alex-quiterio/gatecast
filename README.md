@@ -34,6 +34,10 @@ searchable library, with an info tooltip on everything.
 - **Real astronomy.** Planetary positions come from
   [astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT, arcminute accurate). The engine is
   checked against the Swiss Ephemeris, see [How accuracy is tested](#how-accuracy-is-tested).
+- **Meaning at every level.** Tap a gate and read all six of its lines, with yours marked. Your Incarnation
+  Cross is named (192 crosses, with its angle and quarter), and a Circuits view shows how your channels
+  spread across the Individual, Tribal, Collective and Integration circuits. Pick a circuit and only its
+  channels light up on the BodyGraph.
 - **Search a city, not a time zone.** Type "Forlì", "Venezia" or "Amsterdam": the place sets the time zone,
   and the offset for that date (daylight saving included) is shown. 34,000 cities, searched in a few
   milliseconds, with a time zone and manual-offset fallback.
@@ -51,6 +55,10 @@ searchable library, with an info tooltip on everything.
 <p align="center">
   <img src="docs/screenshots/wheel-desktop.png" alt="The gate wheel" width="450">
   <img src="docs/screenshots/compare-desktop.png" alt="Comparing two charts" width="450">
+</p>
+<p align="center">
+  <img src="docs/screenshots/circuits-desktop.png" alt="The Circuits view, with one circuit lit on the BodyGraph" width="450">
+  <img src="docs/screenshots/lines-desktop.png" alt="The six lines of a gate, with the chart's own line marked" width="450">
 </p>
 <p align="center">
   <img src="docs/screenshots/place-search.png" alt="Birth place search" width="450">
@@ -87,7 +95,7 @@ open `http://localhost:3000/?sw=1` to try offline mode and the install prompt.
 src/
   types.ts      shared contract: Chart, Comparison, Activation...
   engine/       ephemeris, gate wheel, BodyGraph logic, chart and comparison maths
-  content/      every meaning, name and tooltip text
+  content/      every meaning: gates, lines, channels, circuits, crosses, tooltips
   places/       city search: normalising, ranking, formatting, time zones
   ui/           SVG renderers (BodyGraph, wheel, composite), Preact views and components
   pwa.ts        install prompt, update flow and service worker registration
