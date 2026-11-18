@@ -1,0 +1,588 @@
+/* Gate lines, Incarnation Cross and circuits. Semantic tokens come from styles.css. */
+
+:root,
+:root[data-theme='dark'] {
+  --gc-circuit-individual: #5eead4;
+  --gc-circuit-tribal: #fdba74;
+  --gc-circuit-collective: #93c5fd;
+  --gc-circuit-integration: #d8b4fe;
+  --gc-mine: #fbbf24;
+  --gc-pattern-ink: rgba(8, 10, 16, 0.45);
+}
+:root[data-theme='light'] {
+  --gc-circuit-individual: #0f766e;
+  --gc-circuit-tribal: #b45309;
+  --gc-circuit-collective: #1d4ed8;
+  --gc-circuit-integration: #7e22ce;
+  --gc-mine: #92600a;
+  --gc-pattern-ink: rgba(255, 255, 255, 0.5);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --gc-circuit-individual: #0f766e;
+    --gc-circuit-tribal: #b45309;
+    --gc-circuit-collective: #1d4ed8;
+    --gc-circuit-integration: #7e22ce;
+    --gc-mine: #92600a;
+    --gc-pattern-ink: rgba(255, 255, 255, 0.5);
+  }
+}
+
+[data-circuit='Individual'] {
+  --c: var(--gc-circuit-individual);
+}
+[data-circuit='Tribal'] {
+  --c: var(--gc-circuit-tribal);
+}
+[data-circuit='Collective'] {
+  --c: var(--gc-circuit-collective);
+}
+[data-circuit='Integration'] {
+  --c: var(--gc-circuit-integration);
+}
+
+/* ---- Shared bits --------------------------------------------------------- */
+.fact-text {
+  display: block;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+.fact-text.small,
+.small.fact-text {
+  font-size: 13px;
+}
+.chip-line.is-on,
+.chip.is-on {
+  border-color: var(--gc-accent);
+  background: var(--gc-accent-soft);
+}
+.chip-link {
+  min-height: 0;
+  padding: 0;
+  font-weight: 500;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted var(--gc-muted);
+  border-radius: 0;
+}
+.chip-link:hover {
+  border-bottom-color: var(--gc-accent);
+}
+.glc-rest {
+  color: var(--gc-muted);
+  font-size: 12px;
+}
+.chip-circuit {
+  gap: 6px;
+  border-color: var(--c, var(--gc-border-hi));
+}
+.mine-badge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  margin-left: 8px;
+  padding: 0 8px;
+  font: 600 11px/18px var(--gc-font-sans);
+  color: var(--gc-text);
+  vertical-align: middle;
+  background: var(--gc-accent-soft);
+  border: 1px solid var(--gc-accent);
+  border-radius: 999px;
+}
+.mine-badge .swatch {
+  margin: 0;
+}
+.mine-planets {
+  font-weight: 500;
+  color: var(--gc-muted);
+}
+.lib-group {
+  margin: 16px 0 6px;
+}
+.lib-block:first-child .lib-group {
+  margin-top: 4px;
+}
+.lib-row .mine-badge {
+  margin-left: 0;
+}
+
+/* ---- Lines --------------------------------------------------------------- */
+.lines {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gc-border);
+}
+.lines-title {
+  margin: 0 0 8px;
+  font: 600 11px var(--gc-font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gc-muted);
+}
+.line-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.line-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--gc-border);
+  border-left-width: 3px;
+  border-radius: var(--gc-radius-sm);
+}
+.line-row.is-mine {
+  border-left-color: var(--gc-mine);
+  background: var(--gc-accent-soft);
+}
+.line-row.is-focus {
+  border-color: var(--gc-accent);
+  box-shadow: 0 0 0 1px var(--gc-accent);
+}
+.line-num {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  font: 700 12px var(--gc-font-mono);
+  color: var(--gc-text);
+  border: 1px solid var(--gc-border-hi);
+  border-radius: 50%;
+}
+.line-row.is-mine .line-num {
+  background: var(--gc-mine);
+  border-color: var(--gc-mine);
+  color: #14102a;
+}
+.line-title {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.line-summary {
+  margin: 2px 0 0;
+  color: var(--gc-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.line-empty {
+  margin-top: 12px;
+}
+
+/* ---- Cross --------------------------------------------------------------- */
+.cross-card {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gc-border);
+  break-inside: avoid;
+}
+.cross-card .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cross-card h3 {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.quarter-theme {
+  color: var(--gc-muted);
+}
+.why {
+  color: var(--gc-text);
+}
+.gate-strip {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  margin: 8px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+.gate-strip .chip {
+  width: 100%;
+  justify-content: center;
+  padding: 0;
+  min-height: 24px;
+  color: var(--gc-muted);
+  background: transparent;
+}
+.strip-gate.is-cross {
+  color: var(--gc-text);
+  border-color: var(--gc-border-hi);
+  border-style: dashed;
+  background: var(--gc-accent-soft);
+}
+.strip-gate.is-sun {
+  color: #14102a;
+  font-weight: 800;
+  background: var(--gc-mine);
+  border: 2px solid var(--gc-mine);
+}
+.cross-gates {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cross-gates li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.cross-role {
+  flex: 0 0 8.5em;
+  color: var(--gc-muted);
+  font-size: 12px;
+}
+.kf-cross .cross-title {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Circuits ------------------------------------------------------------ */
+.cmark {
+  display: inline-block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--c);
+  border-radius: 3px;
+  background-color: var(--c);
+}
+.cbar-fill,
+.cmark {
+  background-image: none;
+}
+[data-circuit='Tribal'] .cbar-fill,
+[data-circuit='Tribal'] .cmark {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 3px,
+    var(--gc-pattern-ink) 3px 6px
+  );
+}
+[data-circuit='Collective'] .cbar-fill,
+[data-circuit='Collective'] .cmark {
+  background-image: radial-gradient(var(--gc-pattern-ink) 1.4px, transparent 1.8px);
+  background-size: 6px 6px;
+}
+[data-circuit='Integration'] .cbar-fill,
+[data-circuit='Integration'] .cmark {
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 4px, var(--gc-pattern-ink) 4px 6px),
+    repeating-linear-gradient(-45deg, transparent 0 4px, var(--gc-pattern-ink) 4px 6px);
+}
+.cbars {
+  display: grid;
+  gap: 8px;
+}
+.cbar {
+  display: grid;
+  grid-template-columns: minmax(7.5em, 8.5em) minmax(0, 1fr) 4.5em;
+  align-items: center;
+  gap: 8px;
+}
+.cbar-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0;
+  font: 600 13px var(--gc-font-sans);
+  color: var(--gc-text);
+  text-align: left;
+  background: none;
+  border: 0;
+}
+button.cbar-pick {
+  cursor: pointer;
+}
+.cbar-track {
+  display: block;
+  height: 12px;
+  overflow: hidden;
+  background: var(--gc-bg);
+  border: 1px solid var(--gc-border-hi);
+  border-radius: 999px;
+}
+.cbar-fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  background-color: var(--c);
+  border-radius: 999px;
+}
+.cbar-val {
+  color: var(--gc-muted);
+  font: 500 12px var(--gc-font-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+.cbar-val b {
+  color: var(--gc-text);
+}
+.cbar.is-selected .cbar-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.circuits {
+  display: grid;
+  gap: 12px;
+}
+.circuits-head p {
+  margin: 0 0 6px;
+}
+.circuit-lead {
+  font-size: 15px;
+  font-weight: 600;
+}
+.circuit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.circuit-item {
+  padding: 6px 8px 8px;
+  border: 1px solid var(--gc-border);
+  border-left: 3px solid var(--c);
+  border-radius: var(--gc-radius-sm);
+}
+.circuit-item.is-selected,
+.circuit-item.is-active {
+  border-color: var(--c);
+  background: var(--gc-accent-soft);
+}
+.circuit-head {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.circuit-pick {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 4px;
+  text-align: left;
+  color: var(--gc-text);
+  background: none;
+  border: 0;
+  border-radius: var(--gc-radius-sm);
+  cursor: pointer;
+}
+.circuit-pick:hover {
+  background: var(--gc-hover);
+}
+.circuit-pick[aria-pressed='true'] .cbar-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.circuit-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.circuit-line .cbar-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+}
+.circuit-toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  color: var(--gc-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--gc-radius-sm);
+  cursor: pointer;
+}
+.circuit-toggle:hover {
+  background: var(--gc-hover);
+}
+.circuit-toggle[aria-expanded='true'] .chev {
+  transform: rotate(180deg);
+}
+.circuit-body,
+.circuit-detail {
+  display: grid;
+  gap: 8px;
+  padding: 4px 4px 0;
+}
+.circuit-detail {
+  margin-top: 16px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--gc-border);
+}
+.circuit-tagline {
+  margin: 0;
+  font-weight: 600;
+}
+.stream {
+  padding: 8px 10px;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+}
+.stream.is-selected {
+  border-color: var(--gc-accent);
+  background: var(--gc-accent-soft);
+}
+.stream-pick {
+  display: inline-block;
+  margin: 0;
+  min-height: 28px;
+  padding: 0;
+  font: 400 14px var(--gc-font-sans);
+  color: var(--gc-text);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+button.stream-pick[aria-pressed='true'] b {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.stream-pick.plain {
+  cursor: default;
+  font-weight: 600;
+  font-size: 13px;
+}
+.channel-chips,
+.channel-rows {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.channel-chips li,
+.channel-rows li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  min-width: 0;
+}
+.channel-rows li.is-mine .chip {
+  border-color: var(--gc-mine);
+}
+.circuit-channel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+}
+.circuit-channel p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.channel-circuit p {
+  margin: 0 0 4px;
+}
+
+/* Canvas: only the chosen circuit or stream stays lit. */
+.canvas-port.has-focus .hd-svg [data-tip^='channel:'].is-circuit-dim {
+  opacity: 0.14;
+}
+.hd-svg [data-tip^='channel:'].is-circuit-hit {
+  filter: drop-shadow(0 0 3px var(--gc-accent)) drop-shadow(0 0 6px var(--gc-accent));
+}
+
+/* ---- Compare ------------------------------------------------------------- */
+.circuit-compare {
+  display: grid;
+  gap: 8px;
+}
+.cc-sentence {
+  margin: 0;
+  font-weight: 600;
+}
+.cc-cols {
+  display: grid;
+  gap: 12px;
+}
+.cc-col {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+}
+.cc-col h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.cc-col .cbar {
+  grid-template-columns: minmax(6.5em, 7.5em) minmax(0, 1fr) 4em;
+}
+.cc-col .muted {
+  margin: 6px 0 0;
+}
+
+/* Narrow phones: stack the bar label above the bar. */
+@media (max-width: 420px) {
+  .cbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .cbar-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .cross-role {
+    flex-basis: 100%;
+  }
+}
+@media (min-width: 1100px) {
+  .cc-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Touch: keep targets comfortable. */
+@media (pointer: coarse) {
+  .stream-pick,
+  .cbar-pick {
+    min-height: 36px;
+  }
+  .gate-strip .chip {
+    min-height: 32px;
+  }
+}
+
+@media print {
+  .circuit-toggle {
+    display: none !important;
+  }
+  .cbar-track,
+  .cmark,
+  .cbar-fill {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .cross-card,
+  .lines {
+    break-inside: avoid;
+  }
+}

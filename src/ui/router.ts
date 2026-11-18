@@ -9,6 +9,8 @@ export const LIBRARY_TABS = [
   'type',
   'authority',
   'profile',
+  'cross',
+  'circuit',
   'glossary',
 ] as const;
 export type LibraryTab = (typeof LIBRARY_TABS)[number];
@@ -16,7 +18,7 @@ export type LibraryTab = (typeof LIBRARY_TABS)[number];
 export type Route =
   | { name: 'chart'; person?: BirthInput }
   | { name: 'compare'; a?: BirthInput; b?: BirthInput }
-  | { name: 'library'; tab: LibraryTab; id?: string }
+  | { name: 'library'; tab: LibraryTab; id?: string; line?: number }
   | { name: 'about' }
   | { name: 'notFound'; path: string };
 
@@ -25,6 +27,12 @@ const MAX_ID_LENGTH = 60;
 
 function isLibraryTab(value: string): value is LibraryTab {
   return (LIBRARY_TABS as readonly string[]).includes(value);
+}
+
+/** The `line` query parameter of a library route (1 to 6), or `undefined`. */
+function parseLine(query: string): number | undefined {
+  const match = /(?:^|&)line=([1-6])(?:&|$)/u.exec(query);
+  return match?.[1] ? Number(match[1]) : undefined;
 }
 
 function safeDecode(segment: string): string | undefined {
@@ -67,7 +75,8 @@ export function parseRoute(hash: string): Route {
     if (isLibraryTab(tab)) {
       if (id === undefined) return { name: 'library', tab };
       if (id.length <= MAX_ID_LENGTH && /^[\w .'/+-]+$/u.test(id)) {
-        return { name: 'library', tab, id };
+        const line = tab === 'gate' ? parseLine(query) : undefined;
+        return line ? { name: 'library', tab, id, line } : { name: 'library', tab, id };
       }
       return { name: 'library', tab };
     }
@@ -84,7 +93,9 @@ export function buildHash(route: Route): string {
       return route.a && route.b ? `#/compare?${encodeComparison(route.a, route.b)}` : '#/compare';
     case 'library': {
       const base = `#/library/${route.tab}`;
-      return route.id ? `${base}/${encodeURIComponent(route.id)}` : base;
+      if (!route.id) return base;
+      const path = `${base}/${encodeURIComponent(route.id)}`;
+      return route.line && route.tab === 'gate' ? `${path}?line=${route.line}` : path;
     }
     case 'about':
       return '#/about';

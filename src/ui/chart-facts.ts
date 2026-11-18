@@ -1,5 +1,6 @@
 import type { Chart } from '@/types';
-import { AUTHORITIES, GATES, PROFILES } from '@content';
+import { AUTHORITIES, GATES, PROFILES, circuitBreakdown, incarnationCross } from '@content';
+import { dominantSentence } from './circuit-logic';
 import { activationLabel, centerLabel, describeBirth } from './views/common';
 
 /** Name of the ephemeris the engine uses, shown in the status bar. */
@@ -27,9 +28,31 @@ export function auditFacts(chart: Chart): { label: string; value: string }[] {
   ];
 }
 
+/**
+ * The chart as the JSON export: the engine's chart plus the derived cross and
+ * circuit facts, so the file is readable without Gatecast.
+ */
+export function chartExport(chart: Chart): Chart & {
+  incarnationCross: ReturnType<typeof incarnationCross>;
+  circuits: { dominant: string | null; totalChannels: number; counts: Record<string, number> };
+} {
+  const breakdown = circuitBreakdown(chart);
+  return {
+    ...chart,
+    incarnationCross: incarnationCross(chart),
+    circuits: {
+      dominant: breakdown.dominant ?? null,
+      totalChannels: breakdown.totalChannels,
+      counts: Object.fromEntries(breakdown.circuits.map((c) => [c.circuit, c.channels.length])),
+    },
+  };
+}
+
 /** Plain-text summary of a chart, for "Copy summary". */
 export function summaryText(chart: Chart): string {
   const cross = chart.crossGates;
+  const named = incarnationCross(chart);
+  const breakdown = circuitBreakdown(chart);
   const lines = [
     `${chart.input.name || 'Chart'}`,
     describeBirth(chart.input),
@@ -40,7 +63,11 @@ export function summaryText(chart: Chart): string {
     `Profile: ${chart.profile} ${PROFILES[chart.profile]?.name ?? ''}`.trimEnd(),
     `Definition: ${chart.definition}`,
     `Not-self theme: ${chart.notSelfTheme}`,
-    `Incarnation Cross: ${cross.personalitySun}/${cross.personalityEarth} | ${cross.designSun}/${cross.designEarth}`,
+    `Incarnation Cross: ${named.title}`,
+    `Cross angle: ${named.angle}`,
+    `Cross quarter: ${named.quarter}`,
+    `Cross gates: ${cross.personalitySun}/${cross.personalityEarth} | ${cross.designSun}/${cross.designEarth}`,
+    `Circuits: ${dominantSentence(breakdown)} (${breakdown.circuits.map((c) => `${c.circuit} ${c.channels.length}`).join(', ')})`,
     `Defined centers: ${chart.definedCenters.map(centerLabel).join(', ') || 'none'}`,
     `Open centers: ${chart.openCenters.map(centerLabel).join(', ') || 'none'}`,
     `Channels: ${chart.channels.map((c) => c.gates.join('-')).join(', ') || 'none'}`,

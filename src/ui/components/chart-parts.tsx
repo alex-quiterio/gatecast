@@ -1,7 +1,17 @@
 import type { ComponentChildren } from 'preact';
 import type { Activation, Chart } from '@/types';
-import { AUTHORITIES, CENTERS, CHANNELS, GATES, PLANETS, PROFILES, TYPES } from '@content';
-import { activationLabel, centerLabel, channelId, typeClass } from '@ui/views/common';
+import {
+  AUTHORITIES,
+  CENTERS,
+  CHANNELS,
+  GATES,
+  PLANETS,
+  PROFILES,
+  TYPES,
+  incarnationCross,
+} from '@content';
+import { gateLineKey, selectionGate } from '@ui/selection-logic';
+import { centerLabel, channelId, typeClass } from '@ui/views/common';
 import { Chip, InfoButton } from './info-button';
 
 function Fact({
@@ -31,6 +41,7 @@ function Fact({
 /** The compact "key facts" strip: Type, Strategy, Authority, Profile, Definition, Not-self, Cross. */
 export function KeyFacts({ chart }: { chart: Chart }) {
   const cross = chart.crossGates;
+  const named = incarnationCross(chart);
   const gate = (n: number) => (
     <Chip tip={`gate:${n}`} class="chip-mono">
       {n}
@@ -58,7 +69,8 @@ export function KeyFacts({ chart }: { chart: Chart }) {
       <Fact label="Not-self theme" tip="term:Not-Self Theme" wide extra="kf-self">
         {chart.notSelfTheme}
       </Fact>
-      <Fact label="Incarnation Cross" tip="term:Incarnation Cross" wide extra="kf-cross">
+      <Fact label="Incarnation Cross" tip={`cross:${named.angle}`} wide extra="kf-cross">
+        <span class="cross-title">{named.title}</span>
         <span class="cross">
           {gate(cross.personalitySun)}/{gate(cross.personalityEarth)}
           <span class="sep"> | </span>
@@ -97,7 +109,10 @@ export function ActivationTable({
         </thead>
         <tbody>
           {rows.map((a) => (
-            <tr key={a.planet} class={selected === `gate:${a.gate}` ? 'is-selected' : undefined}>
+            <tr
+              key={a.planet}
+              class={selectionGate(selected) === a.gate ? 'is-selected' : undefined}
+            >
               <th scope="row">
                 <Chip tip={`planet:${a.planet}`}>
                   <span aria-hidden="true">{PLANETS[a.planet]?.glyph ?? ''}</span>{' '}
@@ -105,12 +120,20 @@ export function ActivationTable({
                 </Chip>
               </th>
               <td>
-                <Chip tip={`gate:${a.gate}`} class="chip-mono">
-                  {activationLabel(a)}
+                <Chip
+                  tip={gateLineKey(a.gate, a.line)}
+                  class={`chip-mono chip-line${selected === gateLineKey(a.gate, a.line) ? ' is-on' : ''}`}
+                >
+                  {a.gate}.{a.line}
                 </Chip>
+                <span class="mono glc-rest" aria-label={`color ${a.color}, tone ${a.tone}`}>
+                  .{a.color}.{a.tone}
+                </span>
               </td>
               <td class="gate-cell">
-                <span class="gate-name">{GATES[a.gate]?.name ?? ''}</span>
+                <Chip tip={`gate:${a.gate}`} class="chip-link">
+                  {GATES[a.gate]?.name ?? `Gate ${a.gate}`}
+                </Chip>
                 <Chip tip={`center:${a.center}`} class="chip-quiet">
                   {centerLabel(a.center)}
                 </Chip>

@@ -1,4 +1,4 @@
-import { useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 
 /** One tab. */
 export interface TabItem {
@@ -37,6 +37,10 @@ export interface TabsProps {
  */
 export function Tabs({ prefix, label, items, value, onChange, class: className }: TabsProps) {
   const refs = useRef(new Map<string, HTMLButtonElement>());
+  // A tab bar that scrolls must keep the chosen tab in view.
+  useEffect(() => {
+    refs.current.get(value)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [value]);
   const onKeyDown = (event: KeyboardEvent): void => {
     const current = items.findIndex((i) => i.id === value);
     const next = nextTabIndex(event.key, current, items.length);

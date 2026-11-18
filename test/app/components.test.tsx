@@ -194,3 +194,38 @@ describe('BirthForm', () => {
     expect(calls[0]?.timeZone).toBeUndefined();
   });
 });
+
+describe('Tabs scrolling', () => {
+  test('keeps the chosen tab in view when the tab bar scrolls', () => {
+    const scrolled: (string | null)[] = [];
+    const original = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = function (this: HTMLElement) {
+      scrolled.push(this.textContent);
+    };
+    try {
+      const items = [
+        { id: 'a', label: 'Alpha' },
+        { id: 'b', label: 'Beta' },
+      ];
+      const show = (value: string): void => {
+        act(() => {
+          render(
+            <Tabs
+              prefix="t"
+              label="Letters"
+              items={items}
+              value={value}
+              onChange={() => undefined}
+            />,
+            host,
+          );
+        });
+      };
+      show('a');
+      show('b');
+      expect(scrolled).toEqual(['Alpha', 'Beta']);
+    } finally {
+      HTMLElement.prototype.scrollIntoView = original;
+    }
+  });
+});

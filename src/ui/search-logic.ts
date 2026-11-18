@@ -1,3 +1,4 @@
+import { GATES, STREAMS, STREAM_ORDER, lineMeaning } from '@content';
 import { TAB_LABELS, entriesFor } from './library-logic';
 import { LIBRARY_TABS, buildHash } from './router';
 import type { SavedPerson } from './storage';
@@ -21,6 +22,26 @@ const PAGES: { label: string; hash: string }[] = [
   { label: 'About', hash: '#/about' },
 ];
 
+/** Every line of every gate that has a meaning: `36.6 · Title`, jumping to the gate with that line open. */
+function lineItems(): QuickItem[] {
+  const items: QuickItem[] = [];
+  for (const gate of Object.values(GATES).sort((a, b) => a.number - b.number)) {
+    for (let line = 1; line <= 6; line++) {
+      const meaning = lineMeaning(gate.number, line);
+      if (!meaning) continue;
+      items.push({
+        group: 'Gate lines',
+        label: `${gate.number}.${line} · ${meaning.title}`,
+        hint: `Gate ${gate.number} ${gate.name}, line ${line}`,
+        hash: buildHash({ name: 'library', tab: 'gate', id: String(gate.number), line }),
+        haystack:
+          `${gate.number}.${line} ${gate.number} ${line} line ${gate.name} ${meaning.summary}`.toLowerCase(),
+      });
+    }
+  }
+  return items;
+}
+
 let libraryItems: QuickItem[] | undefined;
 
 function libraryIndex(): QuickItem[] {
@@ -37,6 +58,17 @@ function libraryIndex(): QuickItem[] {
       });
     }
   }
+  for (const stream of STREAM_ORDER) {
+    const content = STREAMS[stream];
+    items.push({
+      group: 'Streams',
+      label: `${content.title} stream`,
+      hint: `${content.circuit} circuit`,
+      hash: buildHash({ name: 'library', tab: 'circuit', id: content.circuit }),
+      haystack: `${stream} stream ${content.circuit} circuit ${content.summary}`.toLowerCase(),
+    });
+  }
+  items.push(...lineItems());
   libraryItems = items;
   return items;
 }

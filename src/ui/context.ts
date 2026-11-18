@@ -1,5 +1,6 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
+import type { Chart } from '@/types';
 import type { PeopleStore, SavedPerson } from './storage';
 
 /** What the shell hands to every view. */
@@ -19,6 +20,10 @@ export interface AppContextValue {
   hash: string;
   /** Open the quick-find palette. */
   openSearch(): void;
+  /** The most recently computed chart this session (memory only), used by the library. */
+  myChart: Chart | undefined;
+  /** Remember a chart as "my chart" for the library. */
+  rememberChart(chart: Chart): void;
 }
 
 /** Context carrying the {@link AppContextValue}. */

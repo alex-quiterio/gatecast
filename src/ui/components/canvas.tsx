@@ -11,6 +11,11 @@ export interface ChartCanvasProps {
   markup: string;
   /** Tooltip key of the selected item; it is highlighted on the drawing. */
   selected?: string | undefined;
+  /**
+   * Ids of channels to light up (`20-34`); every other channel on the drawing
+   * is dimmed. Leave undefined for no focus.
+   */
+  focusChannels?: readonly string[] | undefined;
   /** Extra classes on the viewport (e.g. layer toggles). */
   class?: string;
   /** Extra toolbar content, shown before the zoom buttons. */
@@ -38,6 +43,7 @@ function isTyping(target: EventTarget | null): boolean {
 export function ChartCanvas({
   markup,
   selected,
+  focusChannels,
   class: className = '',
   toolbar,
   resetKey,
@@ -63,6 +69,18 @@ export function ChartCanvas({
       if (el.getAttribute('data-tip') === selected) el.classList.add('is-selected');
     }
   }, [selected, markup]);
+
+  // Light up only the focused channels and dim the rest.
+  useEffect(() => {
+    const root = port.current;
+    if (!root) return;
+    const hits = focusChannels ? new Set(focusChannels.map((id) => `channel:${id}`)) : undefined;
+    for (const el of root.querySelectorAll('[data-tip^="channel:"]')) {
+      const hit = hits?.has(el.getAttribute('data-tip') ?? '') ?? false;
+      el.classList.toggle('is-circuit-hit', hit);
+      el.classList.toggle('is-circuit-dim', Boolean(hits) && !hit);
+    }
+  }, [focusChannels, markup]);
 
   const zoomBy = (factor: number, px = 0, py = 0): void =>
     setView((v) => zoomAt(v, factor, px, py));
@@ -175,7 +193,7 @@ export function ChartCanvas({
         </button>
       </div>
       <div
-        class={`canvas-port shape-${shape} ${zoomed ? 'is-zoomed' : ''} ${className}`.trim()}
+        class={`canvas-port shape-${shape} ${zoomed ? 'is-zoomed' : ''} ${focusChannels ? 'has-focus' : ''} ${className}`.trim()}
         ref={port}
         onWheel={onWheel}
         onPointerDown={onPointerDown}

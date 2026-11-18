@@ -1071,6 +1071,33 @@ input[type='checkbox'] {
   overflow-x: auto;
   scrollbar-width: none;
 }
+/* Edge shadows that appear only while there is more to scroll to (the "local"
+   layers cover the "scroll" shadows once an end is reached). */
+.tabs-line,
+.tabs-scroll {
+  background:
+    linear-gradient(to right, var(--gc-surface), transparent) left center / 28px 100% no-repeat
+      local,
+    linear-gradient(to left, var(--gc-surface), transparent) right center / 28px 100% no-repeat
+      local,
+    radial-gradient(
+        farthest-side at 0 50%,
+        color-mix(in srgb, var(--gc-text) 30%, transparent),
+        transparent
+      )
+      left center / 12px 100% no-repeat scroll,
+    radial-gradient(
+        farthest-side at 100% 50%,
+        color-mix(in srgb, var(--gc-text) 30%, transparent),
+        transparent
+      )
+      right center / 12px 100% no-repeat scroll;
+}
+/* Five inspector tabs: snug enough to fit a 360px inspector without scrolling. */
+.pane-right .tabs-line .tab {
+  padding: 0 6px;
+  font-size: 12px;
+}
 .tabs-line .tab {
   border-radius: 0;
   border: 0;
@@ -2138,7 +2165,7 @@ tr[class*='dyn-'] > :first-child {
 @media (min-width: 1024px) and (max-width: 1279px) {
   .workspace {
     --left-w: 40px;
-    --gc-inspector-w: 320px;
+    --gc-inspector-w: 340px;
   }
   .workspace.form-open .pane-left {
     position: absolute;

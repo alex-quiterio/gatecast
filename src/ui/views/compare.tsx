@@ -9,6 +9,7 @@ import { Detail } from '@ui/components/detail';
 import { Icon } from '@ui/components/icons';
 import { ResizeHandle } from '@ui/components/resize-handle';
 import { usePanelWidth } from '@ui/hooks';
+import { CircuitCompare } from '@ui/components/circuit-compare';
 import { Chip } from '@ui/components/info-button';
 import { Tabs } from '@ui/components/tabs';
 import { useToast } from '@ui/components/toast';
@@ -217,6 +218,7 @@ function Result({ a, b }: { a: Chart; b: Chart }) {
                     </tbody>
                   </table>
                 </div>
+                <CircuitCompare a={a} b={b} composite={comparison.compositeChannels} />
                 <div>
                   <h3 class="micro">Legend</h3>
                   <TrustedHtml class="legend" markup={legend} />

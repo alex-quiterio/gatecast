@@ -1,6 +1,6 @@
 import { render } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import type { BirthInput } from '@/types';
+import type { BirthInput, Chart } from '@/types';
 import { CommandPalette } from '@ui/components/command-palette';
 import { Icon, type IconName } from '@ui/components/icons';
 import { PwaBanner, InstallButton } from '@ui/components/pwa-banner';
@@ -62,6 +62,7 @@ export function App() {
   const { store, people, refresh } = usePeopleStore(storage);
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
+  const [myChart, setMyChart] = useState<Chart | undefined>(undefined);
   const main = useRef<HTMLElement>(null);
   const chord = useRef(0);
 
@@ -74,6 +75,8 @@ export function App() {
     urlFor: router.urlFor,
     hash: router.hash,
     openSearch: () => setPalette(true),
+    myChart,
+    rememberChart: setMyChart,
   };
 
   // Title and scroll restoration on every navigation.
@@ -134,7 +137,7 @@ export function App() {
       view = <CompareView a={route.a} b={route.b} />;
       break;
     case 'library':
-      view = <LibraryView tab={route.tab} id={route.id} />;
+      view = <LibraryView tab={route.tab} id={route.id} line={route.line} />;
       break;
     case 'about':
       view = <AboutView />;

@@ -3,10 +3,12 @@ import { computeChart } from '@engine';
 import type { BirthInput, Chart } from '@/types';
 import { renderBodygraph } from '@ui/bodygraph';
 import { renderWheel } from '@ui/wheel';
-import { summaryText } from '@ui/chart-facts';
+import { chartExport, summaryText } from '@ui/chart-facts';
 import { BirthForm } from '@ui/components/birth-form';
 import { ChartCanvas } from '@ui/components/canvas';
 import { ActivationTable, CentersPanel, ChannelsPanel, KeyFacts } from '@ui/components/chart-parts';
+import { CircuitsPanel } from '@ui/components/circuits';
+import { CrossCard } from '@ui/components/cross-card';
 import { Detail } from '@ui/components/detail';
 import { Icon } from '@ui/components/icons';
 import { Menu, type MenuItem } from '@ui/components/menu';
@@ -19,6 +21,7 @@ import { downloadBlob, exportPng, exportSvg } from '@ui/export-image';
 import { usePanelWidth, useShortcuts } from '@ui/hooks';
 import { ResizeHandle } from '@ui/components/resize-handle';
 import { buildHash } from '@ui/router';
+import { canvasKeyFor, channelsOfSelection } from '@ui/selection-logic';
 import { encodePerson } from '@ui/share';
 import { copyText, describeBirth, downloadText } from './common';
 
@@ -26,6 +29,7 @@ const INSPECTOR_TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'activations', label: 'Activations' },
   { id: 'channels', label: 'Channels' },
+  { id: 'circuits', label: 'Circuits' },
   { id: 'centers', label: 'Centers' },
 ] as const;
 type InspectorTab = (typeof INSPECTOR_TABS)[number]['id'];
@@ -86,7 +90,7 @@ function StartPanel({ onSubmit }: { onSubmit: (input: BirthInput) => void }) {
 }
 
 function Workspace({ chart }: { chart: Chart }) {
-  const { navigate, urlFor, store, people, refreshPeople, hash } = useApp();
+  const { navigate, urlFor, store, people, refreshPeople, hash, rememberChart } = useApp();
   const toast = useToast();
   const input = chart.input;
   const [selected, setSelected] = useState<string | undefined>(undefined);
@@ -101,6 +105,9 @@ function Workspace({ chart }: { chart: Chart }) {
   useEffect(() => {
     queueMicrotask(() => title.current?.focus({ preventScroll: false }));
   }, []);
+  useEffect(() => rememberChart(chart), [chart]);
+
+  const focusChannels = useMemo(() => channelsOfSelection(selected), [selected]);
 
   const bodyMarkup = useMemo(
     () => renderBodygraph(chart, { showGateNumbers: numbers, idPrefix: 'main' }),
@@ -129,7 +136,11 @@ function Workspace({ chart }: { chart: Chart }) {
       label: 'Download JSON',
       icon: 'download',
       onSelect: () => {
-        downloadText(`${fileBase}.json`, JSON.stringify(chart, null, 2), 'application/json');
+        downloadText(
+          `${fileBase}.json`,
+          JSON.stringify(chartExport(chart), null, 2),
+          'application/json',
+        );
         toast('Chart downloaded as JSON.');
       },
     },
@@ -183,7 +194,7 @@ function Workspace({ chart }: { chart: Chart }) {
 
   const select = (key: string, fromCanvas: boolean): void => {
     setSelected(key);
-    if (fromCanvas) setTab('overview');
+    if (fromCanvas || key.startsWith('gateline:')) setTab('overview');
   };
   const onClick = (event: MouseEvent): void => {
     const el = event.target instanceof Element ? event.target.closest('[data-tip]') : null;
@@ -282,7 +293,8 @@ function Workspace({ chart }: { chart: Chart }) {
         <KeyFacts chart={chart} />
         <ChartCanvas
           markup={markup}
-          selected={selected}
+          selected={canvasKeyFor(selected)}
+          focusChannels={focusChannels}
           resetKey={figure}
           shape={figure === 'wheel' ? 'square' : 'portrait'}
           class={layerClass}
@@ -359,6 +371,9 @@ function Workspace({ chart }: { chart: Chart }) {
                 </button>
               ) : null}
               <Detail tipKey={selected ?? `type:${chart.type}`} chart={chart} />
+              {!selected || selected.startsWith('cross:') || selected.startsWith('quarter:') ? (
+                <CrossCard chart={chart} />
+              ) : null}
             </>
           ) : null}
           {tab === 'activations' ? (
@@ -378,6 +393,14 @@ function Workspace({ chart }: { chart: Chart }) {
             </div>
           ) : null}
           {tab === 'channels' ? <ChannelsPanel chart={chart} selected={selected} /> : null}
+          {tab === 'circuits' ? (
+            <CircuitsPanel
+              chart={chart}
+              selected={selected}
+              onClear={() => setSelected(undefined)}
+              onOpenDetail={() => setTab('overview')}
+            />
+          ) : null}
           {tab === 'centers' ? <CentersPanel chart={chart} selected={selected} /> : null}
         </div>
       </aside>

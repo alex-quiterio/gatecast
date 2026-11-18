@@ -12,16 +12,32 @@ import {
   AUTHORITIES,
   CENTERS,
   CHANNELS,
+  CIRCUITS,
+  CROSS_ANGLES,
+  CROSS_NAMES,
   DEFINITIONS,
   DYNAMICS,
   GATES,
   GLOSSARY,
   PLANETS,
   PROFILES,
+  QUARTERS,
+  STREAMS,
   TYPES,
+  circuitBreakdown,
+  incarnationCross,
+  lineMeaning,
+  quarterOfGate,
   tipFor,
 } from '@content';
+import type { CrossAngle, Quarter } from '@content/schema';
+import { parseCrossId } from '@ui/cross-logic';
+import { parseSelection } from '@ui/selection-logic';
 import { centerLabel } from '@ui/views/common';
+import { ChannelCircuit, CircuitDetailBody } from './circuits';
+import { GateStrip } from './cross-card';
+import { Chip } from './info-button';
+import { LineList } from './lines';
 
 function Fact({ label, text }: { label: string; text: string | undefined }) {
   if (!text) return null;
@@ -33,16 +49,27 @@ function Fact({ label, text }: { label: string; text: string | undefined }) {
   );
 }
 
+function FactNode({ label, children }: { label: string; children: ComponentChildren }) {
+  return (
+    <div class="fact">
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  );
+}
+
 function Panel({
   eyebrow,
   title,
   lead,
   children,
+  after,
 }: {
   eyebrow: string;
   title: string;
   lead?: string | undefined;
   children?: ComponentChildren;
+  after?: ComponentChildren;
 }) {
   return (
     <article class="detail-body">
@@ -50,6 +77,7 @@ function Panel({
       <h3>{title}</h3>
       {lead ? <p class="lead">{lead}</p> : null}
       <dl class="facts">{children}</dl>
+      {after}
     </article>
   );
 }
@@ -82,8 +110,12 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
   const value = at >= 0 ? key.slice(at + 1) : '';
 
   switch (kind) {
-    case 'gate': {
-      const gate = GATES[Number(value)];
+    case 'gate':
+    case 'gateline': {
+      const sel = parseSelection(key);
+      const number = sel?.kind === 'gate' || sel?.kind === 'gateline' ? sel.gate : undefined;
+      const line = sel?.kind === 'gateline' ? sel.line : undefined;
+      const gate = number === undefined ? undefined : GATES[number];
       if (gate) {
         const source = chart?.gateSources[gate.number];
         const where =
@@ -92,12 +124,20 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
             : source === 'both'
               ? 'Active in both your Personality and Design.'
               : `Active in your ${source === 'personality' ? 'Personality (conscious)' : 'Design (unconscious)'}.`;
+        const meaning = line ? lineMeaning(gate.number, line) : undefined;
         return (
           <Panel
-            eyebrow={`Gate ${gate.number} · ${gate.iching}`}
+            eyebrow={`Gate ${gate.number}${line ? `.${line}` : ''} · ${gate.iching}`}
             title={gate.name}
             lead={gate.keynote}
+            after={<LineList gate={gate.number} chart={chart} focusLine={line} />}
           >
+            {line && meaning ? (
+              <FactNode label={`Line ${line}`}>
+                <b>{meaning.title}</b>
+                <span class="fact-text">{meaning.summary}</span>
+              </FactNode>
+            ) : null}
             <Fact label="In depth" text={gate.summary} />
             <Fact label="When defined" text={gate.whenDefined} />
             <Fact label="In this chart" text={where} />
@@ -115,8 +155,9 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
         const complete = chart?.channels.some((c) => `${c.gates[0]}-${c.gates[1]}` === value);
         return (
           <Panel eyebrow={`Channel ${value}`} title={channel.name} lead={channel.summary}>
-            <Fact label="Circuit" text={channel.circuit} />
-            <Fact label="Stream" text={channel.stream} />
+            <FactNode label="Circuit">
+              <ChannelCircuit channelKey={value} />
+            </FactNode>
             <Fact label="Gates" text={both.filter(Boolean).join(' + ')} />
             <Fact
               label="In this chart"
@@ -220,6 +261,127 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
         return (
           <Panel eyebrow="Dynamic" title={dynamic.title} lead={dynamic.summary}>
             <Fact label="Example" text={dynamic.example} />
+          </Panel>
+        );
+      }
+      break;
+    }
+    case 'cross': {
+      const angle = CROSS_ANGLES[value as CrossAngle] as
+        (typeof CROSS_ANGLES)[CrossAngle] | undefined;
+      if (angle) {
+        const own = chart ? incarnationCross(chart) : undefined;
+        return (
+          <Panel
+            eyebrow="Incarnation Cross angle"
+            title={`${angle.title} cross`}
+            lead={angle.summary}
+          >
+            <Fact label="Profiles" text={angle.profiles.join(', ')} />
+            <Fact
+              label="In this chart"
+              text={
+                own ? `Your cross is a ${own.angle} cross (Profile ${chart?.profile}).` : undefined
+              }
+            />
+          </Panel>
+        );
+      }
+      break;
+    }
+    case 'quarter': {
+      const quarter = QUARTERS[value as Quarter] as (typeof QUARTERS)[Quarter] | undefined;
+      if (quarter) {
+        const own = chart ? incarnationCross(chart) : undefined;
+        return (
+          <Panel
+            eyebrow="Quarter of the wheel"
+            title={quarter.title}
+            lead={quarter.theme || undefined}
+            after={<GateStrip quarter={value as Quarter} chart={chart} />}
+          >
+            <Fact label="Overview" text={quarter.summary} />
+            <Fact label="Gates" text={quarter.gates.join(', ')} />
+            <Fact
+              label="In this chart"
+              text={
+                own
+                  ? own.quarter === value
+                    ? 'Your personality Sun gate is in this quarter.'
+                    : `Your personality Sun gate is in the ${QUARTERS[own.quarter].title}.`
+                  : undefined
+              }
+            />
+          </Panel>
+        );
+      }
+      break;
+    }
+    case 'crossname': {
+      const parsed = parseCrossId(value);
+      const name = parsed ? CROSS_NAMES[`${parsed.angle}|${parsed.gate}`] : undefined;
+      if (parsed) {
+        const quarter = quarterOfGate(parsed.gate);
+        const angle = CROSS_ANGLES[parsed.angle];
+        return (
+          <Panel
+            eyebrow={`${parsed.angle} cross · Sun gate ${parsed.gate}`}
+            title={name ? `${parsed.angle} Cross of ${name}` : `${parsed.angle} Cross`}
+            lead={name ? undefined : 'No traditional name is listed for this cross yet.'}
+          >
+            <FactNode label="Angle">
+              <Chip tip={`cross:${parsed.angle}`}>{angle.title}</Chip>
+              {angle.summary ? <span class="fact-text">{angle.summary}</span> : null}
+            </FactNode>
+            <FactNode label="Quarter">
+              {quarter ? <Chip tip={`quarter:${quarter}`}>{QUARTERS[quarter].title}</Chip> : null}
+            </FactNode>
+            <FactNode label="Personality Sun gate">
+              <Chip tip={`gate:${parsed.gate}`} class="chip-mono">
+                {parsed.gate}
+              </Chip>{' '}
+              <span class="gate-name">{GATES[parsed.gate]?.name ?? ''}</span>
+            </FactNode>
+            <Fact
+              label="In this chart"
+              text={
+                chart &&
+                incarnationCross(chart).angle === parsed.angle &&
+                chart.crossGates.personalitySun === parsed.gate
+                  ? 'This is your Incarnation Cross.'
+                  : undefined
+              }
+            />
+          </Panel>
+        );
+      }
+      break;
+    }
+    case 'circuit':
+    case 'stream': {
+      const sel = parseSelection(key);
+      const circuit =
+        sel?.kind === 'circuit'
+          ? sel.circuit
+          : sel?.kind === 'stream'
+            ? STREAMS[sel.stream].circuit
+            : undefined;
+      if (circuit) {
+        const content = CIRCUITS[circuit];
+        const stream = sel?.kind === 'stream' ? sel.stream : undefined;
+        return (
+          <Panel
+            eyebrow={stream ? `${stream} stream · ${circuit} circuit` : 'Circuit'}
+            title={stream ? `${STREAMS[stream].title} stream` : `${content.title} circuit`}
+            lead={(stream ? STREAMS[stream].summary : content.tagline) || undefined}
+            after={<CircuitDetailBody circuit={circuit} chart={chart} stream={stream} />}
+          >
+            {chart && stream ? (
+              <Fact
+                label="In this chart"
+                text={`${circuitBreakdown(chart).streams.find((s) => s.stream === stream)?.channels.length ?? 0} complete channels in this stream.`}
+              />
+            ) : null}
           </Panel>
         );
       }
