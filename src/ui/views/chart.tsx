@@ -16,7 +16,8 @@ import { Tabs } from '@ui/components/tabs';
 import { useToast } from '@ui/components/toast';
 import { useApp } from '@ui/context';
 import { downloadBlob, exportPng, exportSvg } from '@ui/export-image';
-import { useShortcuts } from '@ui/hooks';
+import { usePanelWidth, useShortcuts } from '@ui/hooks';
+import { ResizeHandle } from '@ui/components/resize-handle';
 import { buildHash } from '@ui/router';
 import { encodePerson } from '@ui/share';
 import { copyText, describeBirth, downloadText } from './common';
@@ -94,6 +95,7 @@ function Workspace({ chart }: { chart: Chart }) {
   const [numbers, setNumbers] = useState(true);
   const [layers, setLayers] = useState({ personality: true, design: true });
   const [formOpen, setFormOpen] = useState(() => isWide());
+  const panel = usePanelWidth();
   const title = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -205,6 +207,7 @@ function Workspace({ chart }: { chart: Chart }) {
   return (
     <div
       class={`workspace ${formOpen ? 'form-open' : 'form-closed'}`}
+      style={panel.width ? `--left-open-w:${panel.width}px` : undefined}
       onClick={onClick}
       onKeyDown={onKeyDown}
     >
@@ -246,6 +249,15 @@ function Workspace({ chart }: { chart: Chart }) {
             </div>
           ) : null}
         </div>
+        {formOpen ? (
+          <ResizeHandle
+            width={panel.width}
+            onChange={(w) => panel.setWidth(w, false)}
+            onCommit={(w) => panel.setWidth(w, true)}
+            onReset={panel.reset}
+            label="Resize the birth data panel"
+          />
+        ) : null}
       </aside>
 
       <section class="pane pane-center" aria-labelledby="result-title">

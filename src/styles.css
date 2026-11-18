@@ -2417,3 +2417,74 @@ tr[class*='dyn-'] > :first-child {
     padding: 14px 0;
   }
 }
+
+/* Resizable left panel: desktop only. The chosen width is --left-open-w. */
+.resize-handle {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .workspace.form-open {
+    --left-w: var(--left-open-w, 296px);
+  }
+  .workspace-compare.form-open {
+    --left-w: var(--left-open-w, 340px);
+  }
+  .workspace .pane-left {
+    position: relative;
+  }
+  .resize-handle {
+    display: block;
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    bottom: 0;
+    right: -5px;
+    width: 10px;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  .resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    width: 2px;
+    background: transparent;
+    transition:
+      background 120ms,
+      left 120ms,
+      width 120ms;
+  }
+  .resize-handle:hover::after,
+  .resize-handle:focus-visible::after,
+  .resize-handle.is-dragging::after {
+    left: 3px;
+    width: 4px;
+    background: var(--gc-accent);
+  }
+  .resize-handle:focus-visible {
+    outline: none;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .workspace.form-open .pane-left {
+    width: var(--left-open-w, 300px);
+  }
+}
+body.is-resizing,
+body.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .resize-handle::after {
+    transition: none;
+  }
+}
+@media print {
+  .resize-handle {
+    display: none !important;
+  }
+}

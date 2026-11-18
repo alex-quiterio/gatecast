@@ -38,7 +38,8 @@ searchable library, with an info tooltip on everything.
   and the offset for that date (daylight saving included) is shown. 34,000 cities, searched in a few
   milliseconds, with a time zone and manual-offset fallback.
 - **A workstation, not a landing page.** App bar with quick find (`Ctrl/Cmd + K`), saved charts in a left
-  rail, a three-pane chart workspace with zoom and pan, an inspector with tabs, and a status bar showing the
+  rail, a three-pane chart workspace with zoom and pan and a left panel you can resize (drag, or arrow
+  keys; double-click resets), an inspector with tabs, and a status bar showing the
   birth moment, Julian day and Design moment, so the numbers are auditable.
 - **Installable and offline.** A PWA: install it from Chrome (desktop and Android) or Add to Home Screen on
   iOS. After the first visit it works without a network, including city search.

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { LEFT_WIDTH_KEY, parseStoredWidth } from './panel-resize-logic';
 import { parseRoute, type Route } from './router';
 import {
   PeopleStore,
@@ -177,4 +178,46 @@ export function useShortcuts(map: Record<string, () => void>, active = true): vo
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [active]);
+}
+
+/** State of the resizable left panel. */
+export interface PanelWidth {
+  /** The width the user chose, or `undefined` while the stylesheet default applies. */
+  width: number | undefined;
+  /** Change the width; pass `save: false` while dragging and `true` on release. */
+  setWidth(width: number, save?: boolean): void;
+  /** Forget the chosen width and go back to the default. */
+  reset(): void;
+}
+
+/** The left panel width, remembered between visits. */
+export function usePanelWidth(storage: StorageLike | undefined = browserStorage()): PanelWidth {
+  const [width, setWidthState] = useState<number | undefined>(() => {
+    try {
+      return parseStoredWidth(storage?.getItem(LEFT_WIDTH_KEY) ?? null);
+    } catch {
+      return undefined;
+    }
+  });
+  const setWidth = useCallback(
+    (next: number, save = true): void => {
+      setWidthState(next);
+      if (!save) return;
+      try {
+        storage?.setItem(LEFT_WIDTH_KEY, String(next));
+      } catch {
+        // Storage is blocked or full: the width still applies for this visit.
+      }
+    },
+    [storage],
+  );
+  const reset = useCallback((): void => {
+    setWidthState(undefined);
+    try {
+      storage?.removeItem(LEFT_WIDTH_KEY);
+    } catch {
+      // Nothing to clean up if storage is unavailable.
+    }
+  }, [storage]);
+  return { width, setWidth, reset };
 }

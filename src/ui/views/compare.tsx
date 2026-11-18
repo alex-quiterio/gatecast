@@ -7,6 +7,8 @@ import { BirthForm } from '@ui/components/birth-form';
 import { ChartCanvas } from '@ui/components/canvas';
 import { Detail } from '@ui/components/detail';
 import { Icon } from '@ui/components/icons';
+import { ResizeHandle } from '@ui/components/resize-handle';
+import { usePanelWidth } from '@ui/hooks';
 import { Chip } from '@ui/components/info-button';
 import { Tabs } from '@ui/components/tabs';
 import { useToast } from '@ui/components/toast';
@@ -303,6 +305,7 @@ export function CompareView({ a, b }: { a: BirthInput | undefined; b: BirthInput
   const [personA, setA] = useState(a);
   const [personB, setB] = useState(b);
   const [open, setOpen] = useState(!(a && b));
+  const panel = usePanelWidth();
   const change = (next: { a?: BirthInput | undefined; b?: BirthInput | undefined }): void => {
     const na = 'a' in next ? next.a : personA;
     const nb = 'b' in next ? next.b : personB;
@@ -357,7 +360,10 @@ export function CompareView({ a, b }: { a: BirthInput | undefined; b: BirthInput
     );
   }
   return (
-    <div class={`workspace workspace-compare ${open ? 'form-open' : 'form-closed'}`}>
+    <div
+      class={`workspace workspace-compare ${open ? 'form-open' : 'form-closed'}`}
+      style={panel.width ? `--left-open-w:${panel.width}px` : undefined}
+    >
       <aside class="pane pane-left" aria-label="People">
         <button
           type="button"
@@ -373,6 +379,15 @@ export function CompareView({ a, b }: { a: BirthInput | undefined; b: BirthInput
         <div id="people-panel" class="pane-body" hidden={!open}>
           {slots}
         </div>
+        {open ? (
+          <ResizeHandle
+            width={panel.width}
+            onChange={(w) => panel.setWidth(w, false)}
+            onCommit={(w) => panel.setWidth(w, true)}
+            onReset={panel.reset}
+            label="Resize the people panel"
+          />
+        ) : null}
       </aside>
       {'error' in result ? (
         <p class="error" role="alert">
