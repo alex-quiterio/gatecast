@@ -1,4 +1,8 @@
-/** Dev server: builds, serves dist/ on :3000 and rebuilds on changes. */
+/**
+ * Dev server: builds, serves dist/ on :3000 and rebuilds on changes.
+ * The service worker registers on localhost only with `?sw=1` in the URL
+ * (e.g. http://localhost:3000/?sw=1), so normal dev is never served from a cache.
+ */
 import { watch } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { build } from './build';
