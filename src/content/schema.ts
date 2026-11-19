@@ -110,6 +110,10 @@ export interface GateLineContent {
   readonly title: string;
   /** One or two sentences, at most 170 characters, hedged ("tends to"). */
   readonly summary: string;
+  /** What it tends to look like when this line is flowing: specific behaviors, at most 170 characters. */
+  readonly flow?: string;
+  /** What it can look like under pressure, framed as a pattern and never a flaw, at most 170 characters. */
+  readonly stress?: string;
 }
 
 /** The six lines of a gate, index 0 is line 1. */
@@ -176,11 +180,55 @@ export interface CircuitContent {
   readonly streams: readonly Stream[];
   /** How many of the 36 channels belong to it. */
   readonly channelCount: number;
+  /** What it tends to look like when this circuit makes up most of a chart. */
+  readonly strong?: string;
+  /** What it tends to look like when a chart has none of this circuit (common, and not a lack). */
+  readonly absent?: string;
+  /** How people with this circuit tend to connect with others. */
+  readonly relating?: string;
+  /** Three small things to notice or try over a week, framed as experiments. */
+  readonly experiments?: readonly string[];
 }
 
 export interface StreamContent {
   readonly title: string;
   readonly circuit: Circuit;
+  readonly summary: string;
+  /** What this stream tends to look like when it is strong in a chart. */
+  readonly strong?: string;
+  /** Its common stress, framed as a pattern and never a flaw. */
+  readonly stress?: string;
+}
+
+/** How two people whose leading circuits are these tend to meet. */
+export interface CircuitPairContent {
+  readonly title: string;
+  readonly summary: string;
+}
+
+/** The four gates of one Incarnation Cross, as listed in the standard tables. */
+export interface CrossGateSet {
+  readonly personalitySun: number;
+  readonly personalityEarth: number;
+  readonly designSun: number;
+  readonly designEarth: number;
+}
+
+/** One of the 192 Incarnation Crosses. */
+export interface CrossEntry {
+  readonly angle: CrossAngle;
+  /** The personality Sun gate (with the angle, this identifies the cross). */
+  readonly sunGate: number;
+  /** The traditional name, e.g. `the Sphinx`. */
+  readonly name: string;
+  readonly gates: CrossGateSet;
+}
+
+/** What one cross tends to mean. */
+export interface CrossDescription {
+  /** A short phrase, at most eight words, e.g. `Building lasting structure for others`. */
+  readonly theme: string;
+  /** Two or three sentences, at most 320 characters, hedged. */
   readonly summary: string;
 }
 

@@ -82,3 +82,74 @@ describe('gate line meanings', () => {
     }
   });
 });
+
+describe('gate line depth: flow and stress', () => {
+  const fields = ['flow', 'stress'] as const;
+
+  test('every line says what it looks like flowing and under pressure', () => {
+    for (const e of entries) {
+      for (const field of fields) {
+        const text = e[field];
+        expect(text, `${e.gate}.${e.line} ${field}`).toBeTruthy();
+        expect(text?.length ?? 0, `${e.gate}.${e.line} ${field}`).toBeGreaterThanOrEqual(30);
+        expect(text?.length ?? 0, `${e.gate}.${e.line} ${field}`).toBeLessThanOrEqual(170);
+        expect(text, `${e.gate}.${e.line} ${field}`).toMatch(/[.!?]["')]?$/);
+      }
+    }
+  });
+
+  test('the three texts of a line are different from each other', () => {
+    for (const e of entries) {
+      const texts = [e.summary, e.flow, e.stress].map((t) => (t ?? '').toLowerCase());
+      expect(new Set(texts).size, `${e.gate}.${e.line}`).toBe(3);
+    }
+  });
+
+  test('all 1,152 texts are unique', () => {
+    const all = entries.flatMap((e) =>
+      [e.summary, e.flow ?? '', e.stress ?? ''].map((t) => t.toLowerCase()),
+    );
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  test('no markup, placeholders, medical or deterministic language', () => {
+    for (const e of entries) {
+      for (const field of fields) {
+        const text = e[field] ?? '';
+        const where = `${e.gate}.${e.line} ${field}`;
+        expect(text, where).not.toMatch(/[<>]/);
+        expect(text, where).not.toMatch(/todo|lorem|tbd|xxx/i);
+        expect(text, where).not.toMatch(/\bcure[sd]?\b|diagnos|disorder|therap|medicat/i);
+        expect(text, where).not.toMatch(/\b(must|always|never|destined|guarantee[sd]?)\b/i);
+        expect(text, where).not.toMatch(/\s{2,}|^\s|\s$/);
+      }
+    }
+  });
+
+  test('no sentence skeleton dominates flow or stress', () => {
+    for (const field of fields) {
+      const counts = new Map<string, number>();
+      for (const e of entries) {
+        const opening = (e[field] ?? '').toLowerCase().split(/\s+/).slice(0, 3).join(' ');
+        counts.set(opening, (counts.get(opening) ?? 0) + 1);
+      }
+      const worst = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      expect(
+        worst?.[1] ?? 0,
+        `${field}: most repeated opening "${worst?.[0]}"`,
+      ).toBeLessThanOrEqual(Math.floor(entries.length * 0.03));
+    }
+  });
+});
+
+describe('gate line voice', () => {
+  test('descriptive line text is neutral third person, never addressed to "you"', () => {
+    for (const e of entries) {
+      for (const field of ['title', 'summary', 'flow', 'stress'] as const) {
+        expect(e[field] ?? '', `${e.gate}.${e.line} ${field}`).not.toMatch(
+          /\b(you|your|yours|yourself)\b/i,
+        );
+      }
+    }
+  });
+});
