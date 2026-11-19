@@ -13,8 +13,23 @@
   margin: 0;
   flex: 1 1 220px;
 }
+/* A long chart name must shrink with an ellipsis, never widen the page. The
+   grid and flex parents default to min-width: auto, which sizes them to the
+   full unwrapped name, so they are allowed to shrink too. */
+.lib-mine-bar,
+.lib-layout,
+.lib-main,
+.lib-tools {
+  min-width: 0;
+}
+.my-chart-chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
 .my-chart-chip .btn {
   max-width: 100%;
+  min-width: 0;
   min-height: 32px;
   border-radius: 999px;
   border-color: var(--gc-accent);
@@ -51,6 +66,21 @@
 }
 .pin {
   flex: none;
+}
+
+.my-chart-chip .btn > svg {
+  flex: none;
+}
+.fchip-mine {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.fchip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- Badges and counts ---------------------------------------------------- */

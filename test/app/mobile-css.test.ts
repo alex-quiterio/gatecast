@@ -60,3 +60,15 @@ test('toasts clear the action bar as well as the tab bar when the action bar is 
   expect(block).toContain(':root:has(.result-bar)');
   expect(block).toMatch(/--gc-bottom-offset:\s*calc\(var\(--gc-tabbar-h\) \+ \d+px\)/);
 });
+
+test('a long "my chart" name shrinks with an ellipsis instead of widening the Library', async () => {
+  const mine = Bun.file(`${import.meta.dir}/../../src/styles/library-mine.css`);
+  const source = await mine.text();
+  // The grid and flex parents must be allowed below their content's width.
+  expect(source).toMatch(
+    /\.lib-mine-bar,\s*\.lib-layout,\s*\.lib-main,\s*\.lib-tools \{\s*min-width: 0;/,
+  );
+  expect(source).toMatch(/\.my-chart-chip \{[^}]*min-width: 0;[^}]*max-width: 100%;/);
+  expect(source).toMatch(/\.fchip-mine \{[^}]*max-width: 100%;/);
+  expect(source).toMatch(/\.fchip-name \{[^}]*text-overflow: ellipsis;/);
+});

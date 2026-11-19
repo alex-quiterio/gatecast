@@ -258,12 +258,15 @@ export function LibraryView({
               <div class="filter-chips" role="group" aria-label="Your chart">
                 <button
                   type="button"
-                  class="fchip"
+                  class="fchip fchip-mine"
                   aria-pressed={onlyMine}
+                  title={myChart?.input.name || undefined}
                   onClick={() => setOnlyMine(!onlyMine)}
                 >
                   {mineFilterLabel(tab)}
-                  {myChart?.input.name ? ` (${myChart.input.name})` : ''}
+                  {myChart?.input.name ? (
+                    <span class="fchip-name">&nbsp;({myChart.input.name})</span>
+                  ) : null}
                 </button>
               </div>
             ) : null}
