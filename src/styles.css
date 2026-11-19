@@ -2522,3 +2522,65 @@ body.is-resizing * {
     display: none !important;
   }
 }
+
+/* Phones and tablets: the action bar's buttons share one row, however many
+   there are, instead of pushing the last one (Export) off the screen. */
+@media (max-width: 1023px) {
+  .result-bar > .btn,
+  .result-bar .menu {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .result-bar .btn {
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+  .result-bar .btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .result-bar .btn-mine {
+    flex: 0 0 48px;
+  }
+  .result-bar .menu-list {
+    left: auto;
+    right: 0;
+    min-width: min(250px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+  }
+  /* Icon only, but still the button's accessible name. */
+  .result-bar .btn-mine span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+/* On phones Save and Share are icon-only (still named for screen readers), so the
+   Export menu, the one with many actions, keeps its full label. */
+@media (max-width: 439px) {
+  .result-bar .menu {
+    flex: 1 1 0;
+  }
+  .result-bar > .btn:not(.btn-mine) {
+    flex: 0 0 52px;
+  }
+  .result-bar > .btn:not(.btn-mine) span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+
+/* The chart's action bar sits above the tab bar on phones: keep the install and
+   update toasts above both instead of covering the actions. */
+@media (max-width: 1023px) {
+  :root:has(.result-bar) {
+    --gc-bottom-offset: calc(var(--gc-tabbar-h) + 61px);
+  }
+}

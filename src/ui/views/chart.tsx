@@ -332,6 +332,7 @@ function Workspace({ chart }: { chart: Chart }) {
               type="button"
               class={`btn btn-mine${isMine ? ' is-on' : ''}`}
               aria-pressed={isMine}
+              aria-label="Use as my chart"
               onClick={toggleMine}
               title="The Library marks what is in my chart"
             >

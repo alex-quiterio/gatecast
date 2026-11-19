@@ -1,0 +1,36 @@
+/* Touch and small screens: every control is a comfortable target, whichever
+   stylesheet it comes from. This file is named so that it sorts LAST: the build
+   concatenates src/styles.css and then src/styles/*.css alphabetically, and these
+   rules must win over the component files' own min-heights at equal specificity.
+   (Keyed to width as well as pointer type, like the other 44px rules, because
+   phone emulation does not always report a coarse pointer.) */
+@media (max-width: 1023px), (pointer: coarse) {
+  .pwa-install-btn {
+    min-height: 40px;
+  }
+  .my-chart-chip,
+  .my-chart-chip .btn,
+  .line-more summary,
+  .sh-toggle {
+    min-height: 44px;
+  }
+  .line-more summary {
+    display: flex;
+    align-items: center;
+  }
+  .sh-swatches {
+    flex-wrap: wrap;
+  }
+  .sh-swatch {
+    width: 44px;
+    height: 44px;
+  }
+  .sh-field input,
+  .sh-field input[type='text'],
+  .sh-field textarea,
+  .sh-file,
+  .field input:not([type='checkbox']):not([type='radio']),
+  .field select {
+    min-height: 44px;
+  }
+}
