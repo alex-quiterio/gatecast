@@ -34,10 +34,14 @@ searchable library, with an info tooltip on everything.
 - **Real astronomy.** Planetary positions come from
   [astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT, arcminute accurate). The engine is
   checked against the Swiss Ephemeris, see [How accuracy is tested](#how-accuracy-is-tested).
-- **Meaning at every level.** Tap a gate and read all six of its lines, with yours marked. Your Incarnation
-  Cross is named (192 crosses, with its angle and quarter), and a Circuits view shows how your channels
-  spread across the Individual, Tribal, Collective and Integration circuits. Pick a circuit and only its
-  channels light up on the BodyGraph.
+- **Meaning at every level.** Tap a gate and read all six of its lines, each with what it looks like when it
+  flows and under pressure, and yours marked. Your Incarnation Cross is named and described (192 crosses,
+  with angle, quarter and gates), and a Circuits view shows how your channels spread across the Individual,
+  Tribal, Collective and Integration circuits, with notes on what a strong or missing circuit tends to mean.
+  Pick a circuit and only its channels light up on the BodyGraph.
+- **The Library knows your chart.** Choose "my chart" and every Library tab marks what is yours: your lines in
+  each gate, your complete channels, defined and open centers, your Type, Authority, Profile, cross and
+  circuits, with a "Mine" filter and "Related" links from every entry.
 - **Search a city, not a time zone.** Type "Forlì", "Venezia" or "Amsterdam": the place sets the time zone,
   and the offset for that date (daylight saving included) is shown. 34,000 cities, searched in a few
   milliseconds, with a time zone and manual-offset fallback.
@@ -47,6 +51,11 @@ searchable library, with an info tooltip on everything.
   birth moment, Julian day and Design moment, so the numbers are auditable.
 - **Installable and offline.** A PWA: install it from Chrome (desktop and Android) or Add to Home Screen on
   iOS. After the first visit it works without a network, including city search.
+- **Made for professional use.** A **share card** (square, portrait, story or link-preview sizes, in Night,
+  Paper or Ink, with an optional QR code to the chart) and a multi-page **client report** (A4 or US Letter,
+  with the sections you choose, page numbers and a disclaimer) that you can print, save as PDF, or download
+  as one self-contained HTML file. Add your own name, contact line and logo; birth details and the QR code are
+  off by default, and nothing is uploaded.
 - **Shareable.** A chart or a comparison is a link. The birth data lives in the URL hash, which browsers
   never send to a server. Export a chart as JSON, SVG or PNG, copy a text summary, or print.
 - **Mobile first.** Bottom tab bar, touch-sized targets, the BodyGraph before the facts, pinch to zoom.
@@ -57,6 +66,11 @@ searchable library, with an info tooltip on everything.
   <img src="docs/screenshots/compare-desktop.png" alt="Comparing two charts" width="450">
 </p>
 <p align="center">
+  <img src="docs/screenshots/share-card.png" alt="The share card dialog" width="450">
+  <img src="docs/screenshots/print-report.png" alt="The print report dialog" width="450">
+</p>
+<p align="center">
+  <img src="docs/screenshots/library-mine.png" alt="The Library marking the lines in the chart" width="450">
   <img src="docs/screenshots/circuits-desktop.png" alt="The Circuits view, with one circuit lit on the BodyGraph" width="450">
   <img src="docs/screenshots/lines-desktop.png" alt="The six lines of a gate, with the chart's own line marked" width="450">
 </p>
@@ -96,6 +110,8 @@ src/
   types.ts      shared contract: Chart, Comparison, Activation...
   engine/       ephemeris, gate wheel, BodyGraph logic, chart and comparison maths
   content/      every meaning: gates, lines, channels, circuits, crosses, tooltips
+                (descriptive text about a gate, line or cross is neutral third person; guidance
+                addresses "you")
   places/       city search: normalising, ranking, formatting, time zones
   ui/           SVG renderers (BodyGraph, wheel, composite), Preact views and components
   pwa.ts        install prompt, update flow and service worker registration
@@ -147,6 +163,8 @@ project path.
 - Astronomical calculations: [astronomy-engine](https://github.com/cosinekitty/astronomy) by Don Cross, MIT.
 - City data: [GeoNames](https://www.geonames.org), licensed
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Reduced to names, countries and time zones.
+- QR codes: [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) by Kazuhiko Arase, MIT.
+  "QR Code" is a registered trademark of Denso Wave.
 - UI: [Preact](https://preactjs.com), MIT.
 
 ## Disclaimer

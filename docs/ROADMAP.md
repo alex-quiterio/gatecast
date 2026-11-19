@@ -17,13 +17,14 @@ A working list, limited to **content** (what the app says and how much of Human 
 | 5   | Plain-language mode, and clear "what to try" experiments      | Content   | M      |
 | 6   | Link everything: library entries mark what is in _your_ chart | Usability | M      |
 
-Why these: 1, 4 and 6 remove the friction a new person hits in the first five minutes. 2 and 3 are about
+Why these: 1 and 4 remove the friction a new person hits in the first five minutes. 2 and 3 are about
 honesty, since birth time is the biggest source of "my chart looks different in another tool". 5 is the gap
 between a chart and a reading that actually helps someone.
 
-_Done since this list was first written: line-level meanings for all 64 gates, Incarnation Cross names and
-descriptions (all 192), the Circuits view and library tab, and a first version of "link the library to your
-chart" (an "In your chart" badge and a "Mine" filter)._
+_Done since this list was first written: line-level meanings for all 64 gates (with what each looks like when it
+flows and under pressure), all 192 Incarnation Cross names with a description of each, the Circuits view with
+deeper copy and a comparison text for two leading circuits, the Library marking everything in "my chart" with
+related links, and a professional print report and share card._
 
 ## Content
 
@@ -97,13 +98,8 @@ chart" (an "In your chart" badge and a "Mine" filter)._
 
 ### Reading the chart
 
-- **Link the library to your chart.** When a chart is loaded, mark library entries that are active in it
-  ("In your chart"), add a "Mine" filter, and show related items on every page (gate, its channels, its
-  center). Tooltips get a "Learn more" link into the library. _M_
 - **Link tables and drawing both ways.** Hovering a row in the activation table highlights the gate on the
   BodyGraph, and the other way around. _S_
-- **Print and share cards.** A one-page A4 "chart sheet" and a clean image card of the chart with the key
-  facts, for sending to someone. _M_
 - **Bookmarks.** Let people star gates, channels and library entries and keep them with the chart. _S_
 
 ### Accessibility and comfort
@@ -139,5 +135,11 @@ Worth saying out loud so nobody trusts what has not been checked:
 - There is no unknown-birth-time mode and no Variables yet, so the app is a solid reading but not a complete one.
 - The circuit streams follow one widely used division. Teachers draw the lines between Knowing, Centering and
   Integration a little differently (Gatecast uses four Integration channels), and the in-app copy says so.
-- The 384 line meanings and the circuit and cross descriptions are original wording written for this
-  project; they have not had a human proofread.
+- The 384 line meanings, 192 cross descriptions and the circuit copy are original wording written for this
+  project; they have not had a human proofread. Descriptive text about gates, lines and crosses is neutral
+  third person, while older guidance copy (types, centers, circuits) addresses "you": worth unifying.
+- The Incarnation Cross names come from one complete published table, cross-checked against a second, partial
+  one. In the standard tables a Juxtaposition cross and a Left Angle cross of the same Sun gate share their
+  four gates, so those descriptions differ by angle, not by gates.
+- The app bundle has grown to about 640 KB (minified) with all the new copy and the QR library. Loading the
+  lines, crosses and share tools on demand would cut the first load.
