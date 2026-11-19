@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",
-    "preact": "^11.2.0"
+    "preact": "^11.2.0",
+    "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

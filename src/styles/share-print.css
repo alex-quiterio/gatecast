@@ -1,0 +1,384 @@
+/* ==========================================================================
+   Share card and print report: dialog layout, controls and the print root.
+   The report's own styles live in src/ui/share/report-css.ts so the preview,
+   the print output and the downloaded HTML file share them.
+   ========================================================================== */
+
+/* ---- Dialog ------------------------------------------------------------- */
+.dialog.sh-dialog {
+  width: min(1240px, 100%);
+  max-width: none;
+  height: min(900px, 94dvh);
+  max-height: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dialog-backdrop:has(.sh-dialog) {
+  align-items: center;
+  padding: 12px;
+}
+.sh-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gc-border);
+}
+.sh-head h2 {
+  margin: 0 auto 0 0;
+  font-size: 15px;
+}
+.sh-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+.sh-stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  overflow: auto;
+  background: var(--gc-bg-2);
+}
+.sh-stage--pages {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+}
+.sh-pages {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+  background: var(--gc-bg-2);
+}
+.sh-stage--pages .sh-stage__meta {
+  padding: 6px 12px;
+  border-top: 1px solid var(--gc-border);
+  background: var(--gc-surface-solid);
+}
+.sh-card-img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100% - 44px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+}
+.sh-stage__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--gc-muted);
+}
+.sh-stage__note {
+  margin: 0;
+  max-width: 44ch;
+  text-align: center;
+}
+.sh-controls {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-left: 1px solid var(--gc-border);
+}
+.sh-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sh-presets .chip {
+  min-height: 34px;
+  cursor: pointer;
+}
+.sh-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.sh-group > legend {
+  padding: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gc-eyebrow);
+}
+.sh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sh-field__label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.sh-field input[type='text'],
+.sh-field textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  color: var(--gc-text);
+  background: var(--gc-surface-2);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  resize: vertical;
+}
+.sh-field input[type='text']:focus,
+.sh-field textarea:focus {
+  border-color: var(--gc-accent);
+}
+.sh-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--gc-muted);
+}
+.sh-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 32px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.sh-toggle input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--gc-accent);
+}
+.sh-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sh-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-sm);
+  overflow: hidden;
+  background: var(--gc-surface-2);
+}
+.sh-seg__btn {
+  flex: 1 1 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--gc-border);
+  cursor: pointer;
+}
+.sh-seg__btn:last-child {
+  border-right: 0;
+}
+.sh-seg__btn[aria-checked='true'] {
+  background: var(--gc-accent);
+  color: var(--gc-on-accent);
+  font-weight: 600;
+}
+.sh-mode {
+  width: auto;
+}
+.sh-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sh-swatch {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--sw);
+  border: 2px solid var(--gc-surface-solid);
+  box-shadow: 0 0 0 1px var(--gc-border-hi);
+  cursor: pointer;
+}
+.sh-swatch[aria-checked='true'] {
+  box-shadow:
+    0 0 0 2px var(--gc-text),
+    0 0 0 4px var(--gc-surface-solid);
+}
+.sh-swatch:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.sh-logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sh-logo__img {
+  max-width: 120px;
+  max-height: 44px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid var(--gc-border);
+  border-radius: 4px;
+}
+.sh-file {
+  max-width: 100%;
+  font-size: 12px;
+}
+.sh-privacy {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  border: 1px solid var(--gc-border);
+  border-left-width: 3px;
+  border-radius: var(--gc-radius-sm);
+  background: var(--gc-surface-2);
+}
+.sh-privacy p {
+  margin: 0 0 6px;
+}
+.sh-privacy > .icon {
+  margin-top: 1px;
+}
+.sh-privacy--link {
+  border-left-color: var(--gc-amber);
+}
+.sh-privacy--birth {
+  border-left-color: var(--gc-violet);
+}
+.sh-privacy--private {
+  border-left-color: var(--gc-border-hi);
+}
+.sh-actions {
+  position: sticky;
+  bottom: -18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 -16px -18px;
+  padding: 12px 16px calc(12px + var(--gc-safe-bottom));
+  background: var(--gc-surface-solid);
+  border-top: 1px solid var(--gc-border);
+}
+.sh-actions .btn {
+  min-height: 40px;
+  flex: 1 1 auto;
+}
+.sh-status {
+  flex: none;
+  min-height: 0;
+  margin: 0;
+  padding: 0 16px;
+  font-size: 12px;
+  color: var(--gc-muted);
+}
+.sh-status:not(:empty) {
+  padding: 6px 16px;
+  border-top: 1px solid var(--gc-border);
+}
+.sh-status[data-ok='false'] {
+  color: var(--gc-error);
+}
+
+@media (max-width: 860px) {
+  .dialog.sh-dialog {
+    height: 100dvh;
+    width: 100%;
+    overflow: auto;
+    display: block;
+  }
+  .sh-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex-wrap: wrap;
+    background: var(--gc-surface-solid);
+    padding-top: calc(12px + var(--gc-safe-top));
+  }
+  .sh-layout {
+    display: block;
+  }
+  .sh-stage {
+    max-height: 56dvh;
+    overflow: auto;
+  }
+  .sh-stage--pages {
+    max-height: 62dvh;
+  }
+  .sh-card-img {
+    max-height: 48dvh;
+  }
+  .sh-controls {
+    border-left: 0;
+    border-top: 1px solid var(--gc-border);
+    overflow: visible;
+  }
+  .sh-actions {
+    bottom: 0;
+  }
+  .sh-seg__btn {
+    min-height: 44px;
+  }
+  .sh-toggle {
+    min-height: 44px;
+    align-items: center;
+  }
+  .sh-presets .chip {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-dialog * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---- Print root --------------------------------------------------------- */
+#gc-print-root {
+  position: fixed;
+  left: -20000px;
+  top: 0;
+  width: 230mm;
+  pointer-events: none;
+  visibility: hidden;
+}
+@media print {
+  body.gc-printing > *:not(#gc-print-root) {
+    display: none !important;
+  }
+  body.gc-printing {
+    background: #fff !important;
+    margin: 0 !important;
+  }
+  body.gc-printing #gc-print-root {
+    position: static;
+    width: auto;
+    visibility: visible;
+    display: block !important;
+  }
+}
