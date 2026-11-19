@@ -9,6 +9,7 @@ import {
   RUNTIME_CACHE,
   RUNTIME_FILES,
   SKIP_WAITING,
+  WARM_CACHE,
   classifyRequest,
   precacheName,
   staleCaches,
@@ -46,29 +47,38 @@ async function precache(): Promise<void> {
   await cache.addAll(__GC_PRECACHE__.map((u) => new Request(u, { cache: 'reload' })));
 }
 
+/** Cache the optional runtime files that are missing. Never throws. */
 async function prefetchOptional(): Promise<void> {
-  const cache = await caches.open(RUNTIME_CACHE);
-  for (const file of RUNTIME_FILES) {
-    try {
-      if (await cache.match(`./${file}`)) continue;
-      const res = await fetch(`./${file}`);
-      if (res.ok) await cache.put(`./${file}`, res);
-    } catch {
-      // Optional data: ignore failures, it is cached on first use instead.
+  try {
+    const cache = await caches.open(RUNTIME_CACHE);
+    for (const file of RUNTIME_FILES) {
+      try {
+        if (await cache.match(`./${file}`)) continue;
+        const res = await fetch(`./${file}`);
+        if (res.ok) await cache.put(`./${file}`, res);
+      } catch {
+        // Retried on the next WARM_CACHE message, or cached on first use.
+      }
     }
+  } catch {
+    // Cache storage unavailable: nothing to warm.
   }
 }
 
+/**
+ * App shell first: the precache is versioned and updated through the
+ * "new version" toast, so the cached page always matches its cached scripts,
+ * and a launch never waits on a slow or missing network.
+ */
 async function navigate(request: Request): Promise<Response> {
+  const cache = await caches.open(CACHE);
+  const hit =
+    (await cache.match(request, { ignoreSearch: true })) ?? (await cache.match('./index.html'));
+  if (hit) return hit;
   try {
     return await fetch(request);
   } catch {
-    const cache = await caches.open(CACHE);
-    const hit =
-      (await cache.match(request, { ignoreSearch: true })) ??
-      (await cache.match('./index.html')) ??
-      (await cache.match('./404.html'));
-    return hit ?? Response.error();
+    return (await cache.match('./404.html')) ?? Response.error();
   }
 }
 
@@ -98,7 +108,9 @@ async function staleWhileRevalidate(request: Request): Promise<Response> {
 
 sw.addEventListener('install', (event) => {
   // No skipWaiting: a new worker waits until the page asks for it.
-  event.waitUntil(precache());
+  // The optional data is fetched here too (best effort), so "Ready to work
+  // offline" also covers the city search. It is skipped when already cached.
+  event.waitUntil(precache().then(prefetchOptional));
 });
 
 sw.addEventListener('activate', (event) => {
@@ -109,8 +121,6 @@ sw.addEventListener('activate', (event) => {
       await sw.clients.claim();
     })(),
   );
-  // Background, not awaited: activation must not wait for ~1 MB of optional data.
-  void prefetchOptional();
 });
 
 sw.addEventListener('fetch', (event) => {
@@ -130,4 +140,5 @@ sw.addEventListener('fetch', (event) => {
 sw.addEventListener('message', (event) => {
   const data = event.data as { type?: unknown } | null;
   if (data && data.type === SKIP_WAITING) void sw.skipWaiting();
+  else if (data && data.type === WARM_CACHE) event.waitUntil(prefetchOptional());
 });

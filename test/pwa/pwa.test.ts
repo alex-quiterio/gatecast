@@ -8,12 +8,16 @@ import {
   handleControllerChange,
   isDismissed,
   isIosSafari,
+  isMacSafari,
   listenForInstall,
+  persistStorage,
   promptInstall,
   resetPwaForTests,
   shouldRegister,
+  warmOfflineCache,
   watchRegistration,
 } from '@/pwa';
+import { WARM_CACHE } from '@/sw-logic';
 import type { ContainerLike, RegistrationLike, WorkerLike } from '@/pwa';
 
 function promptEvent(outcome: 'accepted' | 'dismissed'): Event {
@@ -88,6 +92,27 @@ describe('detection', () => {
       isIosSafari('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605', 'MacIntel', 5),
     ).toBe(true);
   });
+  test('Mac Safari 17+ yes; older Safari, Chrome, Firefox, Edge and iPadOS no', () => {
+    const mac = (v: string) =>
+      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/${v} Safari/605.1.15`;
+    expect(isMacSafari(mac('17.0'), 'MacIntel', 0)).toBe(true);
+    expect(isMacSafari(mac('26.1'), 'MacIntel', 0)).toBe(true);
+    expect(isMacSafari(mac('16.6'), 'MacIntel', 0)).toBe(false);
+    expect(isMacSafari(mac('17.0'), 'MacIntel', 5)).toBe(false);
+    expect(isMacSafari(mac('17.0'), 'iPhone', 0)).toBe(false);
+    expect(isMacSafari(safari)).toBe(false);
+    const chrome =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+    expect(isMacSafari(chrome, 'MacIntel', 0)).toBe(false);
+    expect(isMacSafari(`${chrome} Edg/131.0.0.0`, 'MacIntel', 0)).toBe(false);
+    expect(
+      isMacSafari(
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.0; rv:132.0) Gecko/20100101 Firefox/132.0',
+        'MacIntel',
+        0,
+      ),
+    ).toBe(false);
+  });
   test('registration gating', () => {
     expect(shouldRegister({ hostname: 'x.github.io', search: '' })).toBe(true);
     expect(shouldRegister({ hostname: 'localhost', search: '' })).toBe(false);
@@ -158,5 +183,45 @@ describe('update and offline flow', () => {
     worker.fire();
     expect(getPwaState().offlineReady).toBe(true);
     expect(getPwaState().updateReady).toBe(false);
+  });
+});
+
+describe('offline data', () => {
+  test('warmOfflineCache posts WARM_CACHE to the active worker', async () => {
+    const sent: unknown[] = [];
+    const ok = await warmOfflineCache({
+      ready: Promise.resolve({ active: { postMessage: (m: unknown) => sent.push(m) } }),
+    });
+    expect(ok).toBe(true);
+    expect(sent).toEqual([{ type: WARM_CACHE }]);
+  });
+  test('warmOfflineCache does nothing without an active worker', async () => {
+    expect(await warmOfflineCache({ ready: Promise.resolve({ active: null }) })).toBe(false);
+  });
+  test('persistStorage asks only for the installed app', async () => {
+    let asked = 0;
+    const storage = {
+      persisted: async () => false,
+      persist: async () => {
+        asked++;
+        return true;
+      },
+    };
+    expect(await persistStorage(storage, false)).toBe(false);
+    expect(asked).toBe(0);
+    expect(await persistStorage(storage, true)).toBe(true);
+    expect(asked).toBe(1);
+  });
+  test('persistStorage skips the request when already persistent, and survives errors', async () => {
+    let asked = 0;
+    const persist = async () => {
+      asked++;
+      return true;
+    };
+    expect(await persistStorage({ persisted: async () => true, persist }, true)).toBe(true);
+    expect(asked).toBe(0);
+    const broken = { persist: async (): Promise<boolean> => Promise.reject(new Error('no')) };
+    expect(await persistStorage(broken, true)).toBe(false);
+    expect(await persistStorage(undefined, true)).toBe(false);
   });
 });

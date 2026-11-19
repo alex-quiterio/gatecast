@@ -15,6 +15,12 @@ export const RUNTIME_FILES: readonly string[] = ['places.json'];
 /** Message the page posts to a waiting worker to activate it. */
 export const SKIP_WAITING = 'SKIP_WAITING';
 
+/**
+ * Message the page posts to the active worker to make sure the optional
+ * runtime files are cached (retries a download that failed or was cut short).
+ */
+export const WARM_CACHE = 'WARM_CACHE';
+
 /** How a fetch should be handled. */
 export type RouteKind = 'ignore' | 'navigate' | 'runtime' | 'static';
 

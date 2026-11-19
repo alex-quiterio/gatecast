@@ -5,6 +5,7 @@
  * The worker registers only on non-localhost hosts, or on localhost with
  * `?sw=1` in the URL, so `bun run dev` is never served from a stale cache.
  */
+import { WARM_CACHE } from '@/sw-logic';
 
 /** Public state the UI renders. */
 export interface PwaState {
@@ -12,6 +13,8 @@ export interface PwaState {
   canInstall: boolean;
   /** Show the iOS "Share, Add to Home Screen" hint. */
   showIosHint: boolean;
+  /** Show the Mac Safari "File, Add to Dock" hint. */
+  showMacHint: boolean;
   /** A new worker is waiting. */
   updateReady: boolean;
   /** The app shell was cached for the first time (shown once). */
@@ -44,7 +47,13 @@ let waitingWorker: { postMessage(message: unknown): void } | undefined;
 let state: PwaState = initialState();
 
 function initialState(): PwaState {
-  return { canInstall: false, showIosHint: false, updateReady: false, offlineReady: false };
+  return {
+    canInstall: false,
+    showIosHint: false,
+    showMacHint: false,
+    updateReady: false,
+    offlineReady: false,
+  };
 }
 
 function set(patch: Partial<PwaState>): void {
@@ -84,6 +93,19 @@ export function isIosSafari(ua: string, platform = '', maxTouchPoints = 0): bool
   return !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua);
 }
 
+/**
+ * True for Safari 17+ on macOS, which can add any site to the Dock as an app
+ * (File, Add to Dock) but never fires an install prompt. Excludes iPadOS
+ * (a Mac with touch) and other browsers on macOS.
+ */
+export function isMacSafari(ua: string, platform = '', maxTouchPoints = 0): boolean {
+  if (!/Macintosh/.test(ua) || maxTouchPoints > 1 || /iPad|iPhone|iPod/.test(ua)) return false;
+  if (platform && platform !== 'MacIntel') return false;
+  if (/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/.test(ua)) return false;
+  const version = /Version\/(\d+)[\d.]* .*Safari\//.exec(ua);
+  return version !== null && Number(version[1]) >= 17;
+}
+
 /** True if the user dismissed an install prompt within the last 30 days. */
 export function isDismissed(now = Date.now()): boolean {
   try {
@@ -109,12 +131,14 @@ export function shouldRegister(loc: Pick<Location, 'hostname' | 'search'>): bool
   return !local || new URLSearchParams(loc.search).get('sw') === '1';
 }
 
-function refreshIosHint(): void {
-  const show =
-    isIosSafari(navigator.userAgent, navigator.platform, navigator.maxTouchPoints) &&
-    !isStandalone() &&
-    !isDismissed();
-  if (show !== state.showIosHint) set({ showIosHint: show });
+function refreshSafariHints(): void {
+  const { userAgent, platform, maxTouchPoints } = navigator;
+  const eligible = !isStandalone() && !isDismissed();
+  const ios = eligible && isIosSafari(userAgent, platform, maxTouchPoints);
+  const mac = eligible && isMacSafari(userAgent, platform, maxTouchPoints);
+  if (ios !== state.showIosHint || mac !== state.showMacHint) {
+    set({ showIosHint: ios, showMacHint: mac });
+  }
 }
 
 function onBeforeInstall(event: Event): void {
@@ -125,7 +149,7 @@ function onBeforeInstall(event: Event): void {
 
 function onInstalled(): void {
   deferred = undefined;
-  set({ canInstall: false, showIosHint: false });
+  set({ canInstall: false, showIosHint: false, showMacHint: false });
 }
 
 /** Start listening for install events (idempotent; safe to call early). */
@@ -134,7 +158,7 @@ export function listenForInstall(): void {
   attached = true;
   window.addEventListener('beforeinstallprompt', onBeforeInstall);
   window.addEventListener('appinstalled', onInstalled);
-  refreshIosHint();
+  refreshSafariHints();
 }
 
 /** Show the native install prompt, if one is available. */
@@ -156,7 +180,7 @@ export async function promptInstall(): Promise<InstallOutcome> {
 /** Hide the install banner and remember it for 30 days. */
 export function dismissInstall(): void {
   remember();
-  set({ canInstall: false, showIosHint: false });
+  set({ canInstall: false, showIosHint: false, showMacHint: false });
 }
 
 /** Hide the offline-ready message. */
@@ -232,6 +256,45 @@ export function handleControllerChange(reload: () => void): boolean {
   return true;
 }
 
+/** Minimal container surface for reaching the active worker. */
+export interface ReadyContainerLike {
+  ready: Promise<{ active: { postMessage(message: unknown): void } | null }>;
+}
+
+/**
+ * Ask the active worker to cache any optional offline data still missing
+ * (the city list). Cheap when everything is cached already.
+ */
+export async function warmOfflineCache(container: ReadyContainerLike): Promise<boolean> {
+  const reg = await container.ready;
+  if (!reg.active) return false;
+  reg.active.postMessage({ type: WARM_CACHE });
+  return true;
+}
+
+/** Minimal `navigator.storage` surface. */
+export interface StorageManagerLike {
+  persisted?: () => Promise<boolean>;
+  persist?: () => Promise<boolean>;
+}
+
+/**
+ * Ask the browser not to evict the offline cache. Only for the installed app,
+ * where browsers grant it without a prompt. Returns whether storage is persistent.
+ */
+export async function persistStorage(
+  storage: StorageManagerLike | undefined,
+  standalone: boolean,
+): Promise<boolean> {
+  if (!standalone || !storage?.persist) return false;
+  try {
+    if (storage.persisted && (await storage.persisted())) return true;
+    return await storage.persist();
+  } catch {
+    return false;
+  }
+}
+
 async function register(): Promise<void> {
   if (registered || !('serviceWorker' in navigator)) return;
   registered = true;
@@ -243,6 +306,10 @@ async function register(): Promise<void> {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') void reg.update().catch(() => undefined);
     });
+    const warm = (): void => void warmOfflineCache(container).catch(() => undefined);
+    warm();
+    window.addEventListener('online', warm);
+    void persistStorage(navigator.storage as StorageManagerLike | undefined, isStandalone());
   } catch {
     // Registration is an enhancement; never surface failures.
   }

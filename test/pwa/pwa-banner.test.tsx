@@ -55,6 +55,31 @@ describe('PwaBanner', () => {
     expect(host.querySelector('[data-pwa=install]')).toBeNull();
   });
 
+  test('Mac Safari gets an Add to Dock hint that Dismiss hides and remembers', () => {
+    const ua = Object.getOwnPropertyDescriptor(navigator, 'userAgent');
+    const platform = Object.getOwnPropertyDescriptor(navigator, 'platform');
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      value:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15',
+    });
+    Object.defineProperty(navigator, 'platform', { configurable: true, value: 'MacIntel' });
+    try {
+      act(() => render(<PwaBanner />, host));
+      const toast = host.querySelector('[data-pwa=mac]');
+      expect(toast?.textContent).toContain('Add to Dock');
+      expect(host.querySelector('[data-pwa=ios]')).toBeNull();
+      act(() => (toast?.querySelector('button') as HTMLButtonElement).click());
+      expect(host.querySelector('[data-pwa=mac]')).toBeNull();
+      expect(pwa.isDismissed()).toBe(true);
+    } finally {
+      if (ua) Object.defineProperty(navigator, 'userAgent', ua);
+      else delete (navigator as unknown as Record<string, unknown>).userAgent;
+      if (platform) Object.defineProperty(navigator, 'platform', platform);
+      else delete (navigator as unknown as Record<string, unknown>).platform;
+    }
+  });
+
   test('InstallButton appears only when an offer exists', () => {
     listenForInstall();
     act(() => render(<InstallButton />, host));

@@ -47,14 +47,15 @@ export function InstallButton() {
 }
 
 /**
- * Notifications for install, iOS add-to-home-screen, update and offline-ready.
+ * Notifications for install, iOS add-to-home-screen, Mac add-to-dock, update
+ * and offline-ready.
  * Render once at the app root; it also registers the service worker.
  */
 export function PwaBanner() {
   useEffect(() => {
     registerPwa();
   }, []);
-  const { canInstall, showIosHint, updateReady, offlineReady } = usePwaState();
+  const { canInstall, showIosHint, showMacHint, updateReady, offlineReady } = usePwaState();
 
   return (
     <div class="pwa-stack" aria-live="polite">
@@ -90,7 +91,19 @@ export function PwaBanner() {
       )}
       {showIosHint && !canInstall && (
         <div class="pwa-toast" role="status" data-pwa="ios">
-          <p class="pwa-text">Tap Share, then Add to Home Screen.</p>
+          <p class="pwa-text">
+            To install, tap Share (under ··· on newer iPhones), then Add to Home Screen.
+          </p>
+          <div class="pwa-actions">
+            <button type="button" class="pwa-btn" onClick={dismissInstall}>
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+      {showMacHint && !canInstall && (
+        <div class="pwa-toast" role="status" data-pwa="mac">
+          <p class="pwa-text">To use Gatecast as an app, choose File, then Add to Dock.</p>
           <div class="pwa-actions">
             <button type="button" class="pwa-btn" onClick={dismissInstall}>
               Dismiss
