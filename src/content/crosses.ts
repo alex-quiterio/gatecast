@@ -1,7 +1,10 @@
+import { CROSS_DESCRIPTIONS } from './cross-descriptions';
 import type { Chart } from '@/types';
 import type {
   CrossAngle,
   CrossAngleContent,
+  CrossDescription,
+  CrossEntry,
   IncarnationCross,
   Quarter,
   QuarterContent,
@@ -51,7 +54,7 @@ export const CROSS_ANGLES: Record<CrossAngle, CrossAngleContent> = {
   'Right Angle': {
     title: 'Right Angle',
     summary:
-      'Often described as a personal path: life tends to center on your own growth and on the people who happen to be in your orbit. The pull is usually inward first, then outward.',
+      'Often described as a personal path: life tends to center on personal growth and on the people who happen to be nearby. The pull is usually inward first, then outward.',
     profiles: ['1/3', '1/4', '2/4', '2/5', '3/5', '3/6'],
   },
   Juxtaposition: {
@@ -63,16 +66,18 @@ export const CROSS_ANGLES: Record<CrossAngle, CrossAngleContent> = {
   'Left Angle': {
     title: 'Left Angle',
     summary:
-      'Often described as a transpersonal path: life tends to be shaped through other people and a wider network, with your own growth happening along the way. The pull is usually outward.',
+      'Often described as a transpersonal path: life tends to be shaped through other people and a wider network, with personal growth happening along the way. The pull is usually outward.',
     profiles: ['4/6', '5/1', '5/2', '6/2', '6/3'],
   },
 };
 
 /**
  * Traditional cross names (the part after "Cross of"), keyed
- * `<angle>|<personality Sun gate>`. All 192 were checked against two
- * independent published tables (manifestinghumandesign.com and
- * thehumandesign.com), and the gate sets against the wheel in the engine.
+ * `<angle>|<personality Sun gate>`. All 192 come from one complete published
+ * table (manifestinghumandesign.com, with each cross's four gates). The names
+ * were cross-checked against a second, partial table (thehumandesign.com), and
+ * the gate sets against the wheel and against 3,000 simulated charts in the
+ * engine (see test/content/cross-entries.test.ts).
  */
 export const CROSS_NAMES: Readonly<Record<string, string>> = {
   'Right Angle|1': 'the Sphinx',
@@ -301,4 +306,248 @@ export function incarnationCross(chart: Chart): IncarnationCross {
     title: name ? `${angle} Cross of ${name} ${set}` : `${angle} Cross ${set}`,
     gates,
   };
+}
+
+// ---------------------------------------------------------------------------
+// PLACEHOLDERS for the next round: the data agent fills `CROSS_ENTRIES` (all
+// 192 crosses with their four gates) and four writers fill the descriptions.
+// ---------------------------------------------------------------------------
+
+/** Key of a cross in lookup tables: `<angle>|<personality Sun gate>`. */
+export function crossKey(angle: CrossAngle, sunGate: number): string {
+  return `${angle}|${sunGate}`;
+}
+
+type CrossRow = readonly [CrossAngle, number, number, number, number];
+
+/**
+ * Gate sets of all 192 crosses, verified row by row against two published
+ * tables and against the engine's wheel (Earth is 32 gates round the wheel
+ * from the Sun; the design Sun stands 15 or 16 gates before the personality
+ * Sun). Standard tables list one design pair per cross; a chart's own design
+ * Sun can sit one gate off, so display the chart's gates, not these.
+ */
+const CROSS_ROWS: readonly CrossRow[] = [
+  // Right Angle: [personality Sun, personality Earth, design Sun, design Earth]
+  ['Right Angle', 1, 2, 7, 13],
+  ['Right Angle', 2, 1, 13, 7],
+  ['Right Angle', 3, 50, 60, 56],
+  ['Right Angle', 4, 49, 23, 43],
+  ['Right Angle', 5, 35, 64, 63],
+  ['Right Angle', 6, 36, 12, 11],
+  ['Right Angle', 7, 13, 2, 1],
+  ['Right Angle', 8, 14, 30, 29],
+  ['Right Angle', 9, 16, 40, 37],
+  ['Right Angle', 10, 15, 46, 25],
+  ['Right Angle', 11, 12, 6, 36],
+  ['Right Angle', 12, 11, 36, 6],
+  ['Right Angle', 13, 7, 1, 2],
+  ['Right Angle', 14, 8, 29, 30],
+  ['Right Angle', 15, 10, 25, 46],
+  ['Right Angle', 16, 9, 37, 40],
+  ['Right Angle', 17, 18, 58, 52],
+  ['Right Angle', 18, 17, 52, 58],
+  ['Right Angle', 19, 33, 44, 24],
+  ['Right Angle', 20, 34, 55, 59],
+  ['Right Angle', 21, 48, 38, 39],
+  ['Right Angle', 22, 47, 26, 45],
+  ['Right Angle', 23, 43, 49, 4],
+  ['Right Angle', 24, 44, 19, 33],
+  ['Right Angle', 25, 46, 10, 15],
+  ['Right Angle', 26, 45, 47, 22],
+  ['Right Angle', 27, 28, 41, 31],
+  ['Right Angle', 28, 27, 31, 41],
+  ['Right Angle', 29, 30, 8, 14],
+  ['Right Angle', 30, 29, 14, 8],
+  ['Right Angle', 31, 41, 27, 28],
+  ['Right Angle', 32, 42, 62, 61],
+  ['Right Angle', 33, 19, 24, 44],
+  ['Right Angle', 34, 20, 59, 55],
+  ['Right Angle', 35, 5, 63, 64],
+  ['Right Angle', 36, 6, 11, 12],
+  ['Right Angle', 37, 40, 9, 16],
+  ['Right Angle', 38, 39, 48, 21],
+  ['Right Angle', 39, 38, 21, 48],
+  ['Right Angle', 40, 37, 16, 9],
+  ['Right Angle', 41, 31, 28, 27],
+  ['Right Angle', 42, 32, 61, 62],
+  ['Right Angle', 43, 23, 4, 49],
+  ['Right Angle', 44, 24, 33, 19],
+  ['Right Angle', 45, 26, 22, 47],
+  ['Right Angle', 46, 25, 15, 10],
+  ['Right Angle', 47, 22, 45, 26],
+  ['Right Angle', 48, 21, 39, 38],
+  ['Right Angle', 49, 4, 43, 23],
+  ['Right Angle', 50, 3, 56, 60],
+  ['Right Angle', 51, 57, 54, 53],
+  ['Right Angle', 52, 58, 17, 18],
+  ['Right Angle', 53, 54, 51, 57],
+  ['Right Angle', 54, 53, 57, 51],
+  ['Right Angle', 55, 59, 34, 20],
+  ['Right Angle', 56, 60, 3, 50],
+  ['Right Angle', 57, 51, 53, 54],
+  ['Right Angle', 58, 52, 18, 17],
+  ['Right Angle', 59, 55, 20, 34],
+  ['Right Angle', 60, 56, 50, 3],
+  ['Right Angle', 61, 62, 32, 42],
+  ['Right Angle', 62, 61, 42, 32],
+  ['Right Angle', 63, 64, 5, 35],
+  ['Right Angle', 64, 63, 35, 5],
+  // Juxtaposition: [personality Sun, personality Earth, design Sun, design Earth]
+  ['Juxtaposition', 1, 2, 4, 49],
+  ['Juxtaposition', 2, 1, 49, 4],
+  ['Juxtaposition', 3, 50, 41, 31],
+  ['Juxtaposition', 4, 49, 8, 14],
+  ['Juxtaposition', 5, 35, 47, 22],
+  ['Juxtaposition', 6, 36, 15, 10],
+  ['Juxtaposition', 7, 13, 23, 43],
+  ['Juxtaposition', 8, 14, 55, 59],
+  ['Juxtaposition', 9, 16, 64, 63],
+  ['Juxtaposition', 10, 15, 18, 17],
+  ['Juxtaposition', 11, 12, 46, 25],
+  ['Juxtaposition', 12, 11, 25, 46],
+  ['Juxtaposition', 13, 7, 43, 23],
+  ['Juxtaposition', 14, 8, 59, 55],
+  ['Juxtaposition', 15, 10, 17, 18],
+  ['Juxtaposition', 16, 9, 63, 64],
+  ['Juxtaposition', 17, 18, 38, 39],
+  ['Juxtaposition', 18, 17, 39, 38],
+  ['Juxtaposition', 19, 33, 1, 2],
+  ['Juxtaposition', 20, 34, 37, 40],
+  ['Juxtaposition', 21, 48, 54, 53],
+  ['Juxtaposition', 22, 47, 11, 12],
+  ['Juxtaposition', 23, 43, 30, 29],
+  ['Juxtaposition', 24, 44, 13, 7],
+  ['Juxtaposition', 25, 46, 58, 52],
+  ['Juxtaposition', 26, 45, 6, 36],
+  ['Juxtaposition', 27, 28, 19, 33],
+  ['Juxtaposition', 28, 27, 33, 19],
+  ['Juxtaposition', 29, 30, 20, 34],
+  ['Juxtaposition', 30, 29, 34, 20],
+  ['Juxtaposition', 31, 41, 24, 44],
+  ['Juxtaposition', 32, 42, 56, 60],
+  ['Juxtaposition', 33, 19, 2, 1],
+  ['Juxtaposition', 34, 20, 40, 37],
+  ['Juxtaposition', 35, 5, 22, 47],
+  ['Juxtaposition', 36, 6, 10, 15],
+  ['Juxtaposition', 37, 40, 5, 35],
+  ['Juxtaposition', 38, 39, 57, 51],
+  ['Juxtaposition', 39, 38, 51, 57],
+  ['Juxtaposition', 40, 37, 35, 5],
+  ['Juxtaposition', 41, 31, 44, 24],
+  ['Juxtaposition', 42, 32, 60, 56],
+  ['Juxtaposition', 43, 23, 29, 30],
+  ['Juxtaposition', 44, 24, 7, 13],
+  ['Juxtaposition', 45, 26, 36, 6],
+  ['Juxtaposition', 46, 25, 52, 58],
+  ['Juxtaposition', 47, 22, 12, 11],
+  ['Juxtaposition', 48, 21, 53, 54],
+  ['Juxtaposition', 49, 4, 14, 8],
+  ['Juxtaposition', 50, 3, 31, 41],
+  ['Juxtaposition', 51, 57, 61, 62],
+  ['Juxtaposition', 52, 58, 21, 48],
+  ['Juxtaposition', 53, 54, 42, 32],
+  ['Juxtaposition', 54, 53, 32, 42],
+  ['Juxtaposition', 55, 59, 9, 16],
+  ['Juxtaposition', 56, 60, 27, 28],
+  ['Juxtaposition', 57, 51, 62, 61],
+  ['Juxtaposition', 58, 52, 48, 21],
+  ['Juxtaposition', 59, 55, 16, 9],
+  ['Juxtaposition', 60, 56, 28, 27],
+  ['Juxtaposition', 61, 62, 50, 3],
+  ['Juxtaposition', 62, 61, 3, 50],
+  ['Juxtaposition', 63, 64, 26, 45],
+  ['Juxtaposition', 64, 63, 45, 26],
+  // Left Angle: [personality Sun, personality Earth, design Sun, design Earth]
+  ['Left Angle', 1, 2, 4, 49],
+  ['Left Angle', 2, 1, 49, 4],
+  ['Left Angle', 3, 50, 41, 31],
+  ['Left Angle', 4, 49, 8, 14],
+  ['Left Angle', 5, 35, 47, 22],
+  ['Left Angle', 6, 36, 15, 10],
+  ['Left Angle', 7, 13, 23, 43],
+  ['Left Angle', 8, 14, 55, 59],
+  ['Left Angle', 9, 16, 64, 63],
+  ['Left Angle', 10, 15, 18, 17],
+  ['Left Angle', 11, 12, 46, 25],
+  ['Left Angle', 12, 11, 25, 46],
+  ['Left Angle', 13, 7, 43, 23],
+  ['Left Angle', 14, 8, 59, 55],
+  ['Left Angle', 15, 10, 17, 18],
+  ['Left Angle', 16, 9, 63, 64],
+  ['Left Angle', 17, 18, 38, 39],
+  ['Left Angle', 18, 17, 39, 38],
+  ['Left Angle', 19, 33, 1, 2],
+  ['Left Angle', 20, 34, 37, 40],
+  ['Left Angle', 21, 48, 54, 53],
+  ['Left Angle', 22, 47, 11, 12],
+  ['Left Angle', 23, 43, 30, 29],
+  ['Left Angle', 24, 44, 13, 7],
+  ['Left Angle', 25, 46, 58, 52],
+  ['Left Angle', 26, 45, 6, 36],
+  ['Left Angle', 27, 28, 19, 33],
+  ['Left Angle', 28, 27, 33, 19],
+  ['Left Angle', 29, 30, 20, 34],
+  ['Left Angle', 30, 29, 34, 20],
+  ['Left Angle', 31, 41, 24, 44],
+  ['Left Angle', 32, 42, 56, 60],
+  ['Left Angle', 33, 19, 2, 1],
+  ['Left Angle', 34, 20, 40, 37],
+  ['Left Angle', 35, 5, 22, 47],
+  ['Left Angle', 36, 6, 10, 15],
+  ['Left Angle', 37, 40, 5, 35],
+  ['Left Angle', 38, 39, 57, 51],
+  ['Left Angle', 39, 38, 51, 57],
+  ['Left Angle', 40, 37, 35, 5],
+  ['Left Angle', 41, 31, 44, 24],
+  ['Left Angle', 42, 32, 60, 56],
+  ['Left Angle', 43, 23, 29, 30],
+  ['Left Angle', 44, 24, 7, 13],
+  ['Left Angle', 45, 26, 36, 6],
+  ['Left Angle', 46, 25, 52, 58],
+  ['Left Angle', 47, 22, 12, 11],
+  ['Left Angle', 48, 21, 53, 54],
+  ['Left Angle', 49, 4, 14, 8],
+  ['Left Angle', 50, 3, 31, 41],
+  ['Left Angle', 51, 57, 61, 62],
+  ['Left Angle', 52, 58, 21, 48],
+  ['Left Angle', 53, 54, 42, 32],
+  ['Left Angle', 54, 53, 32, 42],
+  ['Left Angle', 55, 59, 9, 16],
+  ['Left Angle', 56, 60, 27, 28],
+  ['Left Angle', 57, 51, 62, 61],
+  ['Left Angle', 58, 52, 48, 21],
+  ['Left Angle', 59, 55, 16, 9],
+  ['Left Angle', 60, 56, 28, 27],
+  ['Left Angle', 61, 62, 50, 3],
+  ['Left Angle', 62, 61, 3, 50],
+  ['Left Angle', 63, 64, 26, 45],
+  ['Left Angle', 64, 63, 45, 26],
+];
+
+/** All 192 crosses with their four gates, by angle then Sun gate. */
+export const CROSS_ENTRIES: readonly CrossEntry[] = CROSS_ROWS.map(
+  ([angle, sun, earth, designSun, designEarth]) => ({
+    angle,
+    sunGate: sun,
+    name: CROSS_NAMES[crossKey(angle, sun)] ?? '',
+    gates: {
+      personalitySun: sun,
+      personalityEarth: earth,
+      designSun,
+      designEarth,
+    },
+  }),
+);
+
+/** One cross by angle and personality Sun gate. */
+export function crossEntry(angle: CrossAngle, sunGate: number): CrossEntry | undefined {
+  return CROSS_ENTRIES.find((c) => c.angle === angle && c.sunGate === sunGate);
+}
+
+export { CROSS_DESCRIPTIONS };
+
+/** What one cross tends to mean, or `undefined` when there is no description. */
+export function crossDescription(angle: CrossAngle, sunGate: number): CrossDescription | undefined {
+  return CROSS_DESCRIPTIONS[crossKey(angle, sunGate)];
 }

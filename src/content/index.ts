@@ -2,12 +2,26 @@
 export { AUTHORITIES } from './authorities';
 export { CENTERS } from './centers';
 export { CHANNELS } from './channels';
-export { CIRCUITS, CIRCUIT_ORDER, STREAMS, STREAM_ORDER, circuitBreakdown } from './circuits';
+export {
+  CIRCUITS,
+  CIRCUIT_ORDER,
+  CIRCUIT_PAIRS,
+  STREAMS,
+  STREAM_ORDER,
+  circuitBreakdown,
+  circuitPairKey,
+  circuitPairText,
+} from './circuits';
 export {
   CROSS_ANGLES,
+  CROSS_DESCRIPTIONS,
+  CROSS_ENTRIES,
   CROSS_NAMES,
   QUARTERS,
   crossAngleFor,
+  crossDescription,
+  crossEntry,
+  crossKey,
   incarnationCross,
   quarterOfGate,
 } from './crosses';

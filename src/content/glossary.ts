@@ -127,6 +127,46 @@ export const GLOSSARY: readonly GlossaryEntry[] = [
       'A subgroup of a circuit: Knowing and Centering within Individual, Ego and Defense within Tribal, Logic and Abstract within Collective.',
   },
   {
+    term: 'Knowing stream',
+    definition:
+      'The Individual-circuit stream of inner knowing and creative insight, said to arrive without explanation. It holds nine channels.',
+  },
+  {
+    term: 'Centering stream',
+    definition:
+      'The Individual-circuit stream about self-direction and following your own sense of where you are headed. It holds two channels.',
+  },
+  {
+    term: 'Ego stream',
+    definition:
+      'The Tribal-circuit stream about willpower in service of the group, such as commitment and fair exchange. It holds five channels.',
+  },
+  {
+    term: 'Defense stream',
+    definition:
+      'The Tribal-circuit stream about protecting and bonding the family or community. It holds two channels.',
+  },
+  {
+    term: 'Logic stream',
+    definition:
+      'The Collective-circuit stream about patterns and proof: testing ideas and sharing what holds up. It holds seven channels.',
+  },
+  {
+    term: 'Abstract stream',
+    definition:
+      'The Collective-circuit stream about lived experience, shared as stories and feelings. It holds seven channels.',
+  },
+  {
+    term: 'Leading circuit',
+    definition:
+      'The circuit with the most complete channels in a chart. If two or more circuits tie, Gatecast reports no single leader.',
+  },
+  {
+    term: 'Circuit balance',
+    definition:
+      "How a chart's complete channels spread across the circuits. It describes emphasis, and a circuit with none is common and not a lack.",
+  },
+  {
     term: 'Individual circuit',
     definition:
       'The circuit of originality and inner knowing, made of the Knowing and Centering streams. It tends to run on its own timing.',

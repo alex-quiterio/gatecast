@@ -3,7 +3,7 @@ import type { AuthorityName, ChartType, DefinitionName, DynamicKind } from '@/ty
 import { AUTHORITIES } from './authorities';
 import { CENTERS } from './centers';
 import { CHANNELS } from './channels';
-import { CIRCUITS, CIRCUIT_ORDER, STREAMS, STREAM_ORDER } from './circuits';
+import { CIRCUITS, CIRCUIT_ORDER, STREAMS, STREAM_ORDER, circuitPairText } from './circuits';
 import { CROSS_ANGLES, QUARTERS } from './crosses';
 import { lineMeaning } from './gate-lines';
 import { TYPES } from './chart-types';
@@ -133,6 +133,16 @@ function lookup(family: string, id: string): Tip | undefined {
       const c = name && CIRCUITS[name];
       return c && { title: `${c.title} circuit`, body: clip(`${c.tagline}. ${c.summary}`) };
     }
+    case 'circuitpair': {
+      const parts = id.split('+');
+      if (parts.length !== 2) return undefined;
+      const a = match<Circuit>(CIRCUIT_ORDER, parts[0] ?? '');
+      const b = match<Circuit>(CIRCUIT_ORDER, parts[1] ?? '');
+      const pair = circuitPairText(a, b);
+      if (!a || !b || !pair) return undefined;
+      const [x, y] = CIRCUIT_ORDER.indexOf(a) <= CIRCUIT_ORDER.indexOf(b) ? [a, b] : [b, a];
+      return { title: `${x} + ${y}`, body: clip(pair.summary) };
+    }
     case 'stream': {
       const name = match<Stream>(STREAM_ORDER, id);
       const s = name && STREAMS[name];
@@ -177,6 +187,7 @@ function lookup(family: string, id: string): Tip | undefined {
  * `center:Throat`, `planet:Sun`, `type:Generator`, `authority:Sacral`,
  * `profile:5/1`, `line:3`, `definition:Split Definition`,
  * `dynamic:electromagnetic`, `term:Strategy`, `circuit:Tribal`, `stream:Ego`,
+ * `circuitpair:Individual+Tribal`,
  * `cross:Right Angle`, `quarter:Initiation` and `gateline:36.6`.
  * @returns undefined for an unknown family or id.
  */

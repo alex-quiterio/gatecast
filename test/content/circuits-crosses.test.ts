@@ -222,3 +222,13 @@ describe('circuitBreakdown', () => {
     expect(lead.dominant).toBe('Tribal');
   });
 });
+
+describe('circuit deep fields (smoke)', () => {
+  test('every circuit carries the new copy', () => {
+    for (const c of CIRCUIT_ORDER) {
+      expect(CIRCUITS[c].strong?.length).toBeGreaterThan(20);
+      expect(CIRCUITS[c].experiments).toHaveLength(3);
+    }
+    for (const s of STREAM_ORDER) expect(STREAMS[s].stress?.length).toBeGreaterThan(20);
+  });
+});
