@@ -123,6 +123,8 @@ describe('Library tabs', () => {
       hash: '',
       openSearch: noop,
       myChart,
+      myChartSetting: { kind: 'auto' },
+      chooseMyChart: noop,
       rememberChart: noop,
     };
   }
@@ -143,8 +145,8 @@ describe('Library tabs', () => {
   });
   test('Circuits tab marks the dominant circuit for my chart', () => {
     mount('circuit', undefined, fullChart());
-    expect(host.querySelectorAll('.lib-item')).toHaveLength(4);
-    expect(host.textContent).toContain('Your dominant circuit');
+    expect(host.querySelectorAll('.lib-item')).toHaveLength(10);
+    expect(host.textContent).toMatch(/\d of \d+ channels · leads/);
   });
   test('Gates tab shows badges only with a chart', () => {
     mount('gate');

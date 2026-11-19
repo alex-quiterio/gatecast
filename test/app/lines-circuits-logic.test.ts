@@ -125,12 +125,15 @@ describe('library additions', () => {
     const cross = entriesFor('cross');
     expect(cross.filter((e) => e.kind === 'angle')).toHaveLength(3);
     expect(cross.filter((e) => e.kind === 'quarter')).toHaveLength(4);
-    expect(entriesFor('circuit').map((e) => e.id)).toEqual([
+    const circuits = entriesFor('circuit');
+    expect(circuits.slice(0, 4).map((e) => e.id)).toEqual([
       'Individual',
       'Tribal',
       'Collective',
       'Integration',
     ]);
+    expect(circuits.slice(4).every((e) => e.id.startsWith('stream-'))).toBe(true);
+    expect(circuits).toHaveLength(10);
     expect(
       filterEntries(cross, 'cross', '', { angle: 'Left Angle' }).every(
         (e) => e.kind !== 'quarter' || false,
@@ -139,7 +142,7 @@ describe('library additions', () => {
   });
   test('targets for in-library links', () => {
     expect(libraryTargetFor('gateline:36.6')).toEqual({ tab: 'gate', id: '36', line: 6 });
-    expect(libraryTargetFor('stream:Ego')).toEqual({ tab: 'circuit', id: 'Tribal' });
+    expect(libraryTargetFor('stream:Ego')).toEqual({ tab: 'circuit', id: 'stream-Ego' });
     expect(libraryTargetFor('channel:20-34')).toEqual({ tab: 'channel', id: '20-34' });
     expect(libraryTargetFor('cross:Left Angle')).toEqual({ tab: 'cross', id: 'left-angle' });
     expect(libraryTargetFor('quarter:Duality')).toEqual({ tab: 'cross', id: 'quarter-duality' });

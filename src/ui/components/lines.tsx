@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 import type { Chart } from '@/types';
 import { lineMeaning } from '@content';
+import type { GateLineContent } from '@content/schema';
 import { lineMarks, markCaption, type LineMark } from '@ui/selection-logic';
 
 /** The "Your line" badge: source swatches (ivory for Personality, rose for Design) plus text. */
@@ -13,6 +14,55 @@ export function MineBadge({ mark }: { mark: LineMark }) {
       <span>Your line</span>
       <span class="mine-planets">{markCaption(mark)}</span>
     </span>
+  );
+}
+
+function isWide(): boolean {
+  try {
+    return window.matchMedia('(min-width: 768px)').matches;
+  } catch {
+    return true;
+  }
+}
+
+/** One quiet, collapsible paragraph under a line: "When it flows" or "Under pressure". */
+function LineMore({ label, text, open }: { label: string; text: string; open: boolean }) {
+  const el = useRef<HTMLDetailsElement>(null);
+  // Open by default on wide screens, closed on phones; the reader's toggling is never reset.
+  useEffect(() => {
+    if (open && el.current) el.current.open = true;
+  }, [open]);
+  return (
+    <details class="line-more" ref={el}>
+      <summary>{label}</summary>
+      <p>{text}</p>
+    </details>
+  );
+}
+
+/**
+ * The optional "When it flows" and "Under pressure" notes of a line. Quiet by
+ * design: muted labels, no warning colours (a stress note is a pattern).
+ */
+export function LineExtras({
+  meaning,
+  open,
+}: {
+  meaning: GateLineContent | undefined;
+  /** Force them open; by default they open on wide screens only. */
+  open?: boolean;
+}) {
+  if (!meaning?.flow && !meaning?.stress) return null;
+  const startOpen = open ?? isWide();
+  return (
+    <div class="line-extras">
+      {meaning.flow ? (
+        <LineMore label="When it flows" text={meaning.flow} open={startOpen} />
+      ) : null}
+      {meaning.stress ? (
+        <LineMore label="Under pressure" text={meaning.stress} open={startOpen} />
+      ) : null}
+    </div>
   );
 }
 
@@ -68,6 +118,7 @@ export function LineList({ gate, chart, focusLine }: LineListProps) {
                   {mine ? <MineBadge mark={mark} /> : null}
                 </p>
                 {meaning ? <p class="line-summary">{meaning.summary}</p> : null}
+                <LineExtras meaning={meaning} />
               </div>
             </li>
           );

@@ -106,6 +106,14 @@ export function AboutView() {
             Cross, MIT license.
           </li>
           <li>
+            QR codes on share cards and reports:{' '}
+            <Ext href="https://github.com/kazuhikoarase/qrcode-generator">qrcode-generator</Ext> by
+            Kazuhiko Arase, MIT license. "QR Code" is a registered trademark of Denso Wave.
+          </li>
+          <li>
+            Interface: <Ext href="https://preactjs.com">Preact</Ext>, MIT license.
+          </li>
+          <li>
             City data: <Ext href="https://www.geonames.org">GeoNames</Ext> (cities of 15,000 people
             or more), licensed{' '}
             <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>. Reduced to

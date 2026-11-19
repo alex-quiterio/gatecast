@@ -15,6 +15,10 @@ export interface SavedListProps {
   onDelete: (person: SavedPerson) => void;
   /** Show the birth moment under each name. */
   detailed?: boolean;
+  /** Id of the person that is "my chart" (marked with a filled star). */
+  myId?: string | undefined;
+  /** Make a person "my chart"; when given, each row gets a star button. */
+  onPin?: ((person: SavedPerson) => void) | undefined;
 }
 
 /**
@@ -28,6 +32,8 @@ export function SavedList({
   onOpen,
   onDelete,
   detailed = true,
+  myId,
+  onPin,
 }: SavedListProps) {
   const [status, setStatus] = useState('');
   return (
@@ -50,6 +56,21 @@ export function SavedList({
                   </span>
                   {detailed ? <span class="saved-meta">{describeBirth(person.input)}</span> : null}
                 </button>
+                {onPin ? (
+                  <button
+                    type="button"
+                    class={`btn btn-icon btn-ghost pin${person.id === myId ? ' is-on' : ''}`}
+                    aria-pressed={person.id === myId}
+                    aria-label={`Use ${label} as my chart`}
+                    title={person.id === myId ? 'This is my chart' : 'Use as my chart'}
+                    onClick={() => {
+                      onPin(person);
+                      setStatus(`${label} is now my chart.`);
+                    }}
+                  >
+                    <Icon name="star" />
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   class="btn btn-icon btn-ghost"

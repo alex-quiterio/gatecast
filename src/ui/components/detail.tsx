@@ -25,19 +25,21 @@ import {
   STREAMS,
   TYPES,
   circuitBreakdown,
+  crossDescription,
+  crossEntry,
   incarnationCross,
   lineMeaning,
   quarterOfGate,
   tipFor,
 } from '@content';
 import type { CrossAngle, Quarter } from '@content/schema';
-import { parseCrossId } from '@ui/cross-logic';
+import { GATE_ROLES, parseCrossId } from '@ui/cross-logic';
 import { parseSelection } from '@ui/selection-logic';
 import { centerLabel } from '@ui/views/common';
 import { ChannelCircuit, CircuitDetailBody } from './circuits';
-import { GateStrip } from './cross-card';
+import { CrossGates, GateStrip } from './cross-card';
 import { Chip } from './info-button';
-import { LineList } from './lines';
+import { LineExtras, LineList } from './lines';
 
 function Fact({ label, text }: { label: string; text: string | undefined }) {
   if (!text) return null;
@@ -136,6 +138,7 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
               <FactNode label={`Line ${line}`}>
                 <b>{meaning.title}</b>
                 <span class="fact-text">{meaning.summary}</span>
+                <LineExtras meaning={meaning} />
               </FactNode>
             ) : null}
             <Fact label="In depth" text={gate.summary} />
@@ -319,16 +322,30 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
     }
     case 'crossname': {
       const parsed = parseCrossId(value);
-      const name = parsed ? CROSS_NAMES[`${parsed.angle}|${parsed.gate}`] : undefined;
       if (parsed) {
+        const entry = crossEntry(parsed.angle, parsed.gate);
+        const name = entry?.name || CROSS_NAMES[`${parsed.angle}|${parsed.gate}`];
+        const description = crossDescription(parsed.angle, parsed.gate);
         const quarter = quarterOfGate(parsed.gate);
         const angle = CROSS_ANGLES[parsed.angle];
+        const mine =
+          chart &&
+          incarnationCross(chart).angle === parsed.angle &&
+          chart.crossGates.personalitySun === parsed.gate;
+        const differs =
+          mine && entry && chart
+            ? GATE_ROLES.some(([key]) => chart.crossGates[key] !== entry.gates[key])
+            : false;
         return (
           <Panel
             eyebrow={`${parsed.angle} cross · Sun gate ${parsed.gate}`}
             title={name ? `${parsed.angle} Cross of ${name}` : `${parsed.angle} Cross`}
-            lead={name ? undefined : 'No traditional name is listed for this cross yet.'}
+            lead={
+              description?.theme ||
+              (name ? undefined : 'No traditional name is listed for this cross yet.')
+            }
           >
+            <Fact label="What it tends to mean" text={description?.summary} />
             <FactNode label="Angle">
               <Chip tip={`cross:${parsed.angle}`}>{angle.title}</Chip>
               {angle.summary ? <span class="fact-text">{angle.summary}</span> : null}
@@ -336,22 +353,27 @@ export function Detail({ tipKey: key, chart }: DetailProps) {
             <FactNode label="Quarter">
               {quarter ? <Chip tip={`quarter:${quarter}`}>{QUARTERS[quarter].title}</Chip> : null}
             </FactNode>
-            <FactNode label="Personality Sun gate">
-              <Chip tip={`gate:${parsed.gate}`} class="chip-mono">
-                {parsed.gate}
-              </Chip>{' '}
-              <span class="gate-name">{GATES[parsed.gate]?.name ?? ''}</span>
+            <FactNode label={entry ? 'The four gates' : 'Personality Sun gate'}>
+              {entry ? (
+                <CrossGates gates={entry.gates} />
+              ) : (
+                <>
+                  <Chip tip={`gate:${parsed.gate}`} class="chip-mono">
+                    {parsed.gate}
+                  </Chip>{' '}
+                  <span class="gate-name">{GATES[parsed.gate]?.name ?? ''}</span>
+                </>
+              )}
             </FactNode>
             <Fact
               label="In this chart"
-              text={
-                chart &&
-                incarnationCross(chart).angle === parsed.angle &&
-                chart.crossGates.personalitySun === parsed.gate
-                  ? 'This is your Incarnation Cross.'
-                  : undefined
-              }
+              text={mine ? 'This is your Incarnation Cross.' : undefined}
             />
+            {differs && chart ? (
+              <FactNode label="Your gates">
+                <CrossGates gates={chart.crossGates} />
+              </FactNode>
+            ) : null}
           </Panel>
         );
       }

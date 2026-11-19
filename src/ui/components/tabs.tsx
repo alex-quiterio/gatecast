@@ -4,6 +4,10 @@ import { useEffect, useRef } from 'preact/hooks';
 export interface TabItem {
   id: string;
   label: string;
+  /** A small count shown after the label (hidden when `undefined`). */
+  count?: number | undefined;
+  /** Spoken meaning of the count, e.g. `21 active in your chart`. */
+  countLabel?: string | undefined;
 }
 
 /**
@@ -77,6 +81,17 @@ export function Tabs({ prefix, label, items, value, onChange, class: className }
             onClick={() => onChange(item.id)}
           >
             {item.label}
+            {item.count === undefined ? null : (
+              <>
+                <span class="tab-count" aria-hidden="true">
+                  {item.count}
+                </span>
+                <span class="sr-only">
+                  {', '}
+                  {item.countLabel ?? String(item.count)}
+                </span>
+              </>
+            )}
           </button>
         );
       })}

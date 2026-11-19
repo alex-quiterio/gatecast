@@ -1,6 +1,7 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { Chart } from '@/types';
+import type { MyChartSetting } from './mine-logic';
 import type { PeopleStore, SavedPerson } from './storage';
 
 /** What the shell hands to every view. */
@@ -20,9 +21,16 @@ export interface AppContextValue {
   hash: string;
   /** Open the quick-find palette. */
   openSearch(): void;
-  /** The most recently computed chart this session (memory only), used by the library. */
+  /**
+   * The chart the library marks entries for: the one the person picked
+   * (restored from storage on a fresh load), else the most recently computed.
+   */
   myChart: Chart | undefined;
-  /** Remember a chart as "my chart" for the library. */
+  /** How `myChart` was chosen: automatically, explicitly none, or a picked chart. */
+  myChartSetting: MyChartSetting;
+  /** Pick which chart is "my chart" (persisted); `auto` goes back to the latest chart. */
+  chooseMyChart(setting: MyChartSetting): void;
+  /** Remember a freshly computed chart (used when no chart is picked). */
   rememberChart(chart: Chart): void;
 }
 

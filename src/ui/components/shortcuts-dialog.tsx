@@ -20,7 +20,22 @@ const GROUPS: { title: string; rows: [string, string][] }[] = [
       ['v', 'Switch BodyGraph and gate wheel'],
       ['n', 'Show or hide gate numbers'],
       ['+  -  0', 'Zoom in, zoom out, fit to view'],
-      ['p', 'Print'],
+      ['p', 'Open the print report'],
+      ['Shift S', 'Open the share card'],
+    ],
+  },
+  {
+    title: 'On a comparison',
+    rows: [
+      ['p', 'Open the print report'],
+      ['Shift S', 'Open the share card'],
+    ],
+  },
+  {
+    title: 'In the Library',
+    rows: [
+      ['Tab, Enter', 'Move between entries and open one'],
+      ['Related chips', 'Jump to a gate, channel, center or circuit'],
     ],
   },
 ];

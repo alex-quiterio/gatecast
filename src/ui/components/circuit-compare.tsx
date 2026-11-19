@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks';
 import type { ChannelInfo, Chart } from '@/types';
-import { circuitBreakdown } from '@content';
+import { circuitBreakdown, circuitPairText } from '@content';
 import { comparisonSentence, dominantSentence } from '@ui/circuit-logic';
 import { CircuitBarRows } from './circuits';
 
@@ -27,6 +27,7 @@ export function CircuitCompare({ a, b, composite }: CircuitCompareProps) {
     }),
     [a, b, composite],
   );
+  const pair = ba.dominant && bb.dominant ? circuitPairText(ba.dominant, bb.dominant) : undefined;
   const columns = [
     { key: 'a', title: nameA, breakdown: ba },
     { key: 'b', title: nameB, breakdown: bb },
@@ -47,6 +48,12 @@ export function CircuitCompare({ a, b, composite }: CircuitCompareProps) {
           </div>
         ))}
       </div>
+      {pair ? (
+        <div class="cc-pair">
+          <h4>{pair.title}</h4>
+          <p>{pair.summary}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

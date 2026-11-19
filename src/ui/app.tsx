@@ -1,5 +1,6 @@
 import { render } from 'preact';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { computeChart } from '@engine';
 import type { BirthInput, Chart } from '@/types';
 import { CommandPalette } from '@ui/components/command-palette';
 import { Icon, type IconName } from '@ui/components/icons';
@@ -11,6 +12,12 @@ import { TooltipHost } from '@ui/components/tooltip';
 import { AppContext, type AppContextValue } from './context';
 import { useHashRoute, usePeopleStore, useShortcuts, useTheme } from './hooks';
 import { TAB_LABELS } from './library-logic';
+import {
+  pinProps,
+  readMyChartSetting,
+  writeMyChartSetting,
+  type MyChartSetting,
+} from './mine-logic';
 import { buildHash, type Route } from './router';
 import { buildQuickItems } from './search-logic';
 import { encodePerson } from './share';
@@ -62,7 +69,33 @@ export function App() {
   const { store, people, refresh } = usePeopleStore(storage);
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
-  const [myChart, setMyChart] = useState<Chart | undefined>(undefined);
+  const [latestChart, setLatestChart] = useState<Chart | undefined>(undefined);
+  const [myChartSetting, setMyChartSetting] = useState<MyChartSetting>(() =>
+    readMyChartSetting(storage),
+  );
+  // Computed from the stored birth input on start, so the library can mark
+  // entries on a fresh load or a direct deep link. Cheap: one chart.
+  const pinnedChart = useMemo(() => {
+    if (myChartSetting.kind !== 'chart') return undefined;
+    try {
+      return computeChart(myChartSetting.input);
+    } catch {
+      return undefined;
+    }
+  }, [myChartSetting]);
+  const myChart =
+    myChartSetting.kind === 'none'
+      ? undefined
+      : myChartSetting.kind === 'chart' && pinnedChart
+        ? pinnedChart
+        : latestChart;
+  const chooseMyChart = useCallback(
+    (setting: MyChartSetting): void => {
+      writeMyChartSetting(storage, setting);
+      setMyChartSetting(setting);
+    },
+    [storage],
+  );
   const main = useRef<HTMLElement>(null);
   const chord = useRef(0);
 
@@ -76,7 +109,9 @@ export function App() {
     hash: router.hash,
     openSearch: () => setPalette(true),
     myChart,
-    rememberChart: setMyChart,
+    myChartSetting,
+    chooseMyChart,
+    rememberChart: setLatestChart,
   };
 
   // Title and scroll restoration on every navigation.
@@ -224,6 +259,7 @@ export function App() {
                   activeId={activeId}
                   loadLabel="Open"
                   detailed={false}
+                  {...pinProps(myChartSetting, chooseMyChart)}
                   onOpen={(input) => router.navigate(buildHash({ name: 'chart', person: input }))}
                   onDelete={(p) => {
                     store.remove(p.id);

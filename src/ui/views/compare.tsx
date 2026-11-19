@@ -8,7 +8,8 @@ import { ChartCanvas } from '@ui/components/canvas';
 import { Detail } from '@ui/components/detail';
 import { Icon } from '@ui/components/icons';
 import { ResizeHandle } from '@ui/components/resize-handle';
-import { usePanelWidth } from '@ui/hooks';
+import { ShareDialog } from '@ui/components/share/share-dialog';
+import { usePanelWidth, useShortcuts } from '@ui/hooks';
 import { CircuitCompare } from '@ui/components/circuit-compare';
 import { Chip } from '@ui/components/info-button';
 import { Tabs } from '@ui/components/tabs';
@@ -136,8 +137,11 @@ function Result({ a, b }: { a: Chart; b: Chart }) {
   const legend = useMemo(() => compositeLegend(), []);
   const [tab, setTab] = useState<CompareTab>('overview');
   const [selected, setSelected] = useState<string | undefined>(undefined);
+  const [dialog, setDialog] = useState<'card' | 'report' | undefined>(undefined);
   const nameA = a.input.name || 'Person A';
   const nameB = b.input.name || 'Person B';
+
+  useShortcuts({ p: () => setDialog('report'), S: () => setDialog('card') }, !dialog);
 
   const onClick = (event: MouseEvent): void => {
     const el = event.target instanceof Element ? event.target.closest('[data-tip]') : null;
@@ -172,8 +176,11 @@ function Result({ a, b }: { a: Chart; b: Chart }) {
           >
             <Icon name="share" /> <span>Share link</span>
           </button>
-          <button type="button" class="btn" onClick={() => window.print()}>
-            <Icon name="print" /> <span>Print</span>
+          <button type="button" class="btn" onClick={() => setDialog('card')}>
+            <Icon name="image" /> <span>Share card…</span>
+          </button>
+          <button type="button" class="btn" onClick={() => setDialog('report')}>
+            <Icon name="print" /> <span>Print report…</span>
           </button>
         </div>
       </header>
@@ -297,6 +304,21 @@ function Result({ a, b }: { a: Chart; b: Chart }) {
           </div>
         </aside>
       </div>
+      {dialog ? (
+        <ShareDialog
+          mode={dialog}
+          subject={{
+            kind: 'compare',
+            a,
+            b,
+            inputA: a.input,
+            inputB: b.input,
+            comparison,
+            link: urlFor(buildHash({ name: 'compare', a: a.input, b: b.input })),
+          }}
+          onClose={() => setDialog(undefined)}
+        />
+      ) : null}
     </section>
   );
 }

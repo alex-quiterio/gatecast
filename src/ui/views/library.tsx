@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { CENTER_NAMES, type CenterName } from '@/types';
 import { Detail } from '@ui/components/detail';
 import { Icon } from '@ui/components/icons';
+import { MyChartChip } from '@ui/components/my-chart-chip';
+import { Related } from '@ui/components/related';
 import { Tabs } from '@ui/components/tabs';
 import { useApp } from '@ui/context';
 import { useMediaQuery } from '@ui/hooks';
@@ -12,10 +14,35 @@ import {
   entriesFor,
   filterEntries,
   libraryTargetFor,
-  mineIds,
+  yourCrossFirst,
 } from '@ui/library-logic';
+import {
+  mineFilterLabel,
+  mineIdSet,
+  mineMarks,
+  tabCount,
+  tabCountLabel,
+  type MineMark,
+} from '@ui/mine-logic';
 import { LIBRARY_TABS, buildHash, type LibraryTab } from '@ui/router';
 import { centerLabel } from './common';
+
+/** The text badge of an entry that is (or is not) in my chart; never colour alone. */
+function MarkBadge({ mark }: { mark: MineMark | undefined }) {
+  if (!mark) return null;
+  return (
+    <span class={`mine-badge${mark.mine ? '' : ' is-quiet'}`}>
+      <span aria-hidden="true">{mark.text}</span>
+      <span class="sr-only">{mark.label}</span>
+    </span>
+  );
+}
+
+/** A one-line "in your chart" note above an open entry. */
+function MineCallout({ mark }: { mark: MineMark | undefined }) {
+  if (!mark) return null;
+  return <p class={`mine-callout${mark.mine ? '' : ' is-quiet'}`}>{mark.label}</p>;
+}
 
 /** The library: a searchable reference with deep links (`#/library/gate/20`). */
 export function LibraryView({
@@ -40,18 +67,28 @@ export function LibraryView({
   const listRef = useRef<HTMLDivElement>(null);
 
   const entries = useMemo(() => entriesFor(tab), [tab]);
-  const mine = useMemo(() => mineIds(tab, myChart), [tab, myChart]);
-  const shown = useMemo(
-    () =>
-      filterEntries(entries, tab, query, {
-        center,
-        angle,
-        quarter,
-        only: onlyMine && mine.size > 0 ? mine : undefined,
-      }),
-    [entries, tab, query, center, angle, quarter, onlyMine, mine],
-  );
+  const marks = useMemo(() => mineMarks(tab, myChart), [tab, myChart]);
+  const mine = useMemo(() => mineIdSet(tab, myChart), [tab, myChart]);
+  const shown = useMemo(() => {
+    const list = filterEntries(entries, tab, query, {
+      center,
+      angle,
+      quarter,
+      only: onlyMine && mine.size > 0 ? mine : undefined,
+    });
+    return tab === 'cross' && !query.trim() ? yourCrossFirst(list, marks) : list;
+  }, [entries, tab, query, center, angle, quarter, onlyMine, mine, marks]);
+  const tabItems = LIBRARY_TABS.map((id) => {
+    const count = tabCount(id, myChart);
+    return {
+      id,
+      label: TAB_LABELS[id],
+      count,
+      countLabel: count === undefined ? undefined : tabCountLabel(id, count),
+    };
+  });
   const selected = entries.find((e) => e.id === openId);
+  const openMark = selected ? marks.get(selected.id) : undefined;
   const tipFor = (entry: { tip: string; id: string }): string =>
     tab === 'gate' && line && entry.id === openId ? `gateline:${entry.id}.${line}` : entry.tip;
 
@@ -114,12 +151,20 @@ export function LibraryView({
           item for the full explanation; each has its own link you can share.
         </p>
       </header>
+      <div class="lib-mine-bar">
+        <MyChartChip />
+        <p class="muted small">
+          {myChart
+            ? 'Entries in your chart carry a badge. Use the Mine filter to see only those.'
+            : 'Pick a chart to mark which gates, channels and more are yours.'}
+        </p>
+      </div>
       <div class="lib-layout">
         <section class="lib-main" aria-label="Library list">
           <Tabs
             prefix="lib"
             label="Library sections"
-            items={LIBRARY_TABS.map((id) => ({ id, label: TAB_LABELS[id] }))}
+            items={tabItems}
             value={tab}
             onChange={changeTab}
             class="tabs-scroll"
@@ -209,7 +254,7 @@ export function LibraryView({
                 </div>
               </>
             ) : null}
-            {mine.size > 0 && tab !== 'circuit' ? (
+            {mine.size > 0 && tab !== 'glossary' ? (
               <div class="filter-chips" role="group" aria-label="Your chart">
                 <button
                   type="button"
@@ -217,7 +262,8 @@ export function LibraryView({
                   aria-pressed={onlyMine}
                   onClick={() => setOnlyMine(!onlyMine)}
                 >
-                  Mine{myChart?.input.name ? ` (${myChart.input.name})` : ''}
+                  {mineFilterLabel(tab)}
+                  {myChart?.input.name ? ` (${myChart.input.name})` : ''}
                 </button>
               </div>
             ) : null}
@@ -237,7 +283,7 @@ export function LibraryView({
                 {tab === 'cross' && entries.every((e) => e.kind !== 'cross')
                   ? 'No traditional cross names are listed yet. The angles and quarters above still apply to every chart.'
                   : onlyMine
-                    ? 'Nothing in your chart matches. Turn off "Mine" to see everything.'
+                    ? 'Nothing in your chart matches. Turn off the filter to see everything.'
                     : 'Nothing matches that search. Try a gate number or a keyword.'}
               </p>
             ) : null}
@@ -260,17 +306,28 @@ export function LibraryView({
                       onClick={() => open(isOpen && !split ? undefined : entry.id)}
                     >
                       <span class="lib-title">{entry.title}</span>
-                      {mine.has(entry.id) ? (
-                        <span class="mine-badge">
-                          {tab === 'circuit' ? 'Your dominant circuit' : 'In your chart'}
-                        </span>
-                      ) : null}
+                      <MarkBadge mark={marks.get(entry.id)} />
                       {entry.subtitle ? <span class="lib-sub">{entry.subtitle}</span> : null}
+                      {entry.meta ? <span class="lib-meta">{entry.meta}</span> : null}
                       {split ? null : <Icon name="chevron" size={14} class="icon chev" />}
                     </button>
+                    {entry.gates ? (
+                      <ul class="lib-gates" aria-label="The four gates">
+                        {entry.gates.map((g, i) => (
+                          <li
+                            key={i}
+                            class={`chip chip-mono chip-static${g === entry.sunGate && i === 0 ? ' is-sun' : ''}`}
+                          >
+                            {g}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {!split && isOpen ? (
                       <div class="lib-inline" onClick={onDetailClick}>
+                        <MineCallout mark={marks.get(entry.id)} />
                         <Detail tipKey={tipFor(entry)} chart={myChart} />
+                        <Related tab={tab} id={entry.id} />
                       </div>
                     ) : null}
                   </div>
@@ -288,7 +345,9 @@ export function LibraryView({
           >
             {selected ? (
               <div class="pane-body">
+                <MineCallout mark={openMark} />
                 <Detail tipKey={tipFor(selected)} chart={myChart} />
+                <Related tab={tab} id={selected.id} />
               </div>
             ) : (
               <p class="empty-hint">Pick an entry on the left to read its full explanation.</p>

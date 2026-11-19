@@ -24,7 +24,8 @@ export type IconName =
   | 'fit'
   | 'sidebar'
   | 'check'
-  | 'more';
+  | 'more'
+  | 'star';
 
 /** 16x16 stroke paths, drawn with `currentColor`. */
 const PATHS: Record<IconName, string> = {
@@ -52,6 +53,7 @@ const PATHS: Record<IconName, string> = {
   sidebar: 'M2.5 3h11v10h-11V3Zm4 0v10',
   check: 'M3.5 8.5l3 3 6-7',
   more: 'M3.5 8h.1M8 8h.1M12.5 8h.1',
+  star: 'M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6L8 1.8Z',
 };
 
 /** Props of {@link Icon}. */

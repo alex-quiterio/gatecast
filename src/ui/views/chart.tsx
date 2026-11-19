@@ -20,6 +20,9 @@ import { useApp } from '@ui/context';
 import { downloadBlob, exportPng, exportSvg } from '@ui/export-image';
 import { usePanelWidth, useShortcuts } from '@ui/hooks';
 import { ResizeHandle } from '@ui/components/resize-handle';
+import { ReadMore } from '@ui/components/related';
+import { ShareDialog } from '@ui/components/share/share-dialog';
+import { pinProps, sameInput } from '@ui/mine-logic';
 import { buildHash } from '@ui/router';
 import { canvasKeyFor, channelsOfSelection } from '@ui/selection-logic';
 import { encodePerson } from '@ui/share';
@@ -90,7 +93,17 @@ function StartPanel({ onSubmit }: { onSubmit: (input: BirthInput) => void }) {
 }
 
 function Workspace({ chart }: { chart: Chart }) {
-  const { navigate, urlFor, store, people, refreshPeople, hash, rememberChart } = useApp();
+  const {
+    navigate,
+    urlFor,
+    store,
+    people,
+    refreshPeople,
+    hash,
+    rememberChart,
+    myChartSetting,
+    chooseMyChart,
+  } = useApp();
   const toast = useToast();
   const input = chart.input;
   const [selected, setSelected] = useState<string | undefined>(undefined);
@@ -99,6 +112,7 @@ function Workspace({ chart }: { chart: Chart }) {
   const [numbers, setNumbers] = useState(true);
   const [layers, setLayers] = useState({ personality: true, design: true });
   const [formOpen, setFormOpen] = useState(() => isWide());
+  const [dialog, setDialog] = useState<'card' | 'report' | undefined>(undefined);
   const panel = usePanelWidth();
   const title = useRef<HTMLHeadingElement>(null);
 
@@ -130,7 +144,30 @@ function Workspace({ chart }: { chart: Chart }) {
       ),
     );
   };
+  const isMine = myChartSetting.kind === 'chart' && sameInput(myChartSetting.input, input);
+  const toggleMine = (): void => {
+    chooseMyChart(isMine ? { kind: 'auto' } : { kind: 'chart', input });
+    toast(
+      isMine
+        ? 'The Library now marks your most recent chart.'
+        : `The Library now marks entries for ${input.name || 'this chart'}.`,
+    );
+  };
   const items: MenuItem[] = [
+    {
+      id: 'card',
+      label: 'Share card…',
+      icon: 'image',
+      hint: '⇧S',
+      onSelect: () => setDialog('card'),
+    },
+    {
+      id: 'report',
+      label: 'Print report…',
+      icon: 'print',
+      hint: 'P',
+      onSelect: () => setDialog('report'),
+    },
     {
       id: 'json',
       label: 'Download JSON',
@@ -179,18 +216,21 @@ function Workspace({ chart }: { chart: Chart }) {
       id: 'print',
       label: 'Print / save as PDF',
       icon: 'print',
-      hint: 'P',
-      onSelect: () => window.print(),
+      onSelect: () => setDialog('report'),
     },
   ];
 
-  useShortcuts({
-    s: save,
-    u: share,
-    n: () => setNumbers((v) => !v),
-    v: () => setFigure((f) => (f === 'body' ? 'wheel' : 'body')),
-    p: () => window.print(),
-  });
+  useShortcuts(
+    {
+      s: save,
+      S: () => setDialog('card'),
+      u: share,
+      n: () => setNumbers((v) => !v),
+      v: () => setFigure((f) => (f === 'body' ? 'wheel' : 'body')),
+      p: () => setDialog('report'),
+    },
+    !dialog,
+  );
 
   const select = (key: string, fromCanvas: boolean): void => {
     setSelected(key);
@@ -251,6 +291,7 @@ function Workspace({ chart }: { chart: Chart }) {
                 activeId={activeId}
                 loadLabel="Load"
                 detailed={false}
+                {...pinProps(myChartSetting, chooseMyChart)}
                 onOpen={(p) => navigate(buildHash({ name: 'chart', person: p }))}
                 onDelete={(p) => {
                   store.remove(p.id);
@@ -286,6 +327,15 @@ function Workspace({ chart }: { chart: Chart }) {
             </button>
             <button type="button" class="btn" onClick={share}>
               <Icon name="share" /> <span>Share link</span>
+            </button>
+            <button
+              type="button"
+              class={`btn btn-mine${isMine ? ' is-on' : ''}`}
+              aria-pressed={isMine}
+              onClick={toggleMine}
+              title="The Library marks what is in my chart"
+            >
+              <Icon name="star" /> <span>{isMine ? 'My chart' : 'Use as my chart'}</span>
             </button>
             <Menu label="Export" icon="download" items={items} />
           </div>
@@ -371,6 +421,7 @@ function Workspace({ chart }: { chart: Chart }) {
                 </button>
               ) : null}
               <Detail tipKey={selected ?? `type:${chart.type}`} chart={chart} />
+              <ReadMore selected={selected} chart={chart} />
               {!selected || selected.startsWith('cross:') || selected.startsWith('quarter:') ? (
                 <CrossCard chart={chart} />
               ) : null}
@@ -406,6 +457,18 @@ function Workspace({ chart }: { chart: Chart }) {
       </aside>
 
       <StatusBar chart={chart} />
+      {dialog ? (
+        <ShareDialog
+          mode={dialog}
+          subject={{
+            kind: 'chart',
+            chart,
+            input,
+            link: urlFor(buildHash({ name: 'chart', person: input })),
+          }}
+          onClose={() => setDialog(undefined)}
+        />
+      ) : null}
     </div>
   );
 }

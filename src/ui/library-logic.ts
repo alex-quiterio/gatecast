@@ -11,9 +11,8 @@ import {
   PROFILES,
   QUARTERS,
   STREAMS,
+  STREAM_ORDER,
   TYPES,
-  circuitBreakdown,
-  incarnationCross,
   lineMeaning,
 } from '@content';
 import type { CrossAngle, Quarter } from '@content/schema';
@@ -23,12 +22,13 @@ import {
   QUARTER_ORDER,
   angleFromSlug,
   angleSlug,
-  crossEntries,
-  crossId,
+  crossRows,
+  gatesOf,
   parseCrossId,
   quarterFromId,
   quarterId,
 } from './cross-logic';
+import { mineIdSet } from './mine-logic';
 import { parseSelection } from './selection-logic';
 import type { LibraryTab } from './router';
 import { centerLabel } from './views/common';
@@ -51,6 +51,14 @@ export interface LibraryEntry {
   quarter?: Quarter;
   /** What a cross-tab entry is: an angle, a quarter or a named cross. */
   kind?: 'angle' | 'quarter' | 'cross';
+  /** A named cross: its four gates (personality Sun, Earth, design Sun, Earth). */
+  gates?: readonly number[];
+  /** A named cross: the personality Sun gate. */
+  sunGate?: number;
+  /** A named cross: its one-line theme. */
+  theme?: string;
+  /** Short text after the title (quarter and Sun gate of a cross). */
+  meta?: string;
 }
 
 /** Human labels of the library tabs. */
@@ -132,18 +140,7 @@ export function entriesFor(tab: LibraryTab): LibraryEntry[] {
     case 'cross':
       return crossTabEntries();
     case 'circuit':
-      return CIRCUIT_ORDER.map((c) => {
-        const content = CIRCUITS[c];
-        const streams = content.streams.join(' ');
-        return {
-          id: c,
-          title: content.title,
-          subtitle: content.tagline,
-          haystack:
-            `${c} ${content.title} ${content.tagline} ${content.summary} ${streams} circuit`.toLowerCase(),
-          tip: `circuit:${c}`,
-        };
-      });
+      return circuitEntries();
     case 'glossary':
       return GLOSSARY.map((g) => ({
         id: g.term,
@@ -153,6 +150,35 @@ export function entriesFor(tab: LibraryTab): LibraryEntry[] {
         tip: `term:${g.term}`,
       }));
   }
+}
+
+function circuitEntries(): LibraryEntry[] {
+  const out: LibraryEntry[] = CIRCUIT_ORDER.map((c) => {
+    const content = CIRCUITS[c];
+    const streams = content.streams.join(' ');
+    return {
+      id: c,
+      title: content.title,
+      subtitle: content.tagline,
+      haystack:
+        `${c} ${content.title} ${content.tagline} ${content.summary} ${streams} circuit`.toLowerCase(),
+      tip: `circuit:${c}`,
+      group: 'Circuits',
+    };
+  });
+  for (const stream of STREAM_ORDER) {
+    const content = STREAMS[stream];
+    out.push({
+      id: `stream-${stream}`,
+      title: `${content.title} stream`,
+      subtitle: `${content.circuit} circuit`,
+      haystack:
+        `${stream} ${content.title} stream ${content.summary} ${content.circuit}`.toLowerCase(),
+      tip: `stream:${stream}`,
+      group: 'Streams',
+    });
+  }
+  return out;
 }
 
 function crossTabEntries(): LibraryEntry[] {
@@ -185,17 +211,23 @@ function crossTabEntries(): LibraryEntry[] {
       kind: 'quarter',
     });
   }
-  for (const e of crossEntries()) {
+  for (const e of crossRows()) {
+    const gates = gatesOf(e.gates);
     out.push({
       id: e.id,
       title: e.title,
-      subtitle: `${QUARTERS[e.quarter].title} · Sun gate ${e.gate}`,
-      haystack: `${e.title} ${e.name} ${e.angle} ${e.quarter} ${e.gate} gate`.toLowerCase(),
+      subtitle: e.theme,
+      meta: `${QUARTERS[e.quarter].title} · Sun gate ${e.gate}`,
+      haystack:
+        `${e.title} ${e.name} ${e.theme} ${e.angle} ${e.quarter} ${e.gate} gate ${gates.join(' ')}`.toLowerCase(),
       tip: `crossname:${e.id}`,
       group: `${e.angle} crosses`,
       angle: e.angle,
       quarter: e.quarter,
       kind: 'cross',
+      gates,
+      sunGate: e.gate,
+      theme: e.theme,
     });
   }
   return out;
@@ -255,7 +287,7 @@ export function libraryTargetFor(key: string): LibraryTarget | undefined {
   if (s?.kind === 'gateline') return { tab: 'gate', id: String(s.gate), line: s.line };
   if (s?.kind === 'channel') return { tab: 'channel', id: s.id };
   if (s?.kind === 'circuit') return { tab: 'circuit', id: s.circuit };
-  if (s?.kind === 'stream') return { tab: 'circuit', id: STREAMS[s.stream].circuit };
+  if (s?.kind === 'stream') return { tab: 'circuit', id: `stream-${s.stream}` };
   const at = key.indexOf(':');
   const family = key.slice(0, at);
   const value = key.slice(at + 1);
@@ -271,30 +303,40 @@ export function libraryTargetFor(key: string): LibraryTarget | undefined {
     return quarter ? { tab: 'cross', id: quarterId(quarter) } : undefined;
   }
   if (family === 'crossname' && parseCrossId(value)) return { tab: 'cross', id: value };
+  if (family === 'type' && Object.hasOwn(TYPES, value)) return { tab: 'type', id: value };
+  if (family === 'authority' && Object.hasOwn(AUTHORITIES, value)) {
+    return { tab: 'authority', id: value };
+  }
+  if (family === 'profile' && Object.hasOwn(PROFILES, value)) return { tab: 'profile', id: value };
+  if (family === 'term' && GLOSSARY.some((g) => g.term === value)) {
+    return { tab: 'glossary', id: value };
+  }
   return undefined;
 }
 
 /**
  * Ids of the entries of `tab` that belong to a chart (gates it has, channels it
- * has complete, its cross, angle and quarter, its dominant circuit). Empty when
- * there is no chart or nothing applies.
+ * has complete, defined centers, its type, authority, profile, cross, angle and
+ * quarter, circuits and streams it has channels in). Empty when there is no chart.
  */
 export function mineIds(tab: LibraryTab, chart: Chart | undefined): ReadonlySet<string> {
-  const ids = new Set<string>();
-  if (!chart) return ids;
-  if (tab === 'gate') for (const g of chart.activeGates) ids.add(String(g));
-  if (tab === 'channel') for (const c of chart.channels) ids.add(`${c.gates[0]}-${c.gates[1]}`);
-  if (tab === 'circuit') {
-    const { dominant } = circuitBreakdown(chart);
-    if (dominant) ids.add(dominant);
-  }
-  if (tab === 'cross') {
-    const cross = incarnationCross(chart);
-    ids.add(angleSlug(cross.angle));
-    ids.add(quarterId(cross.quarter));
-    ids.add(crossId(cross.angle, cross.gates.personalitySun));
-  }
-  return ids;
+  return mineIdSet(tab, chart);
+}
+
+/**
+ * Move the chart's own cross to the top of the cross list under a "Your cross"
+ * heading (it leaves its angle group, so it is never listed twice).
+ *
+ * @param entries Cross-tab entries, already filtered.
+ * @param marks Marks of the cross tab for the chart.
+ */
+export function yourCrossFirst(
+  entries: readonly LibraryEntry[],
+  marks: ReadonlyMap<string, { text: string }>,
+): LibraryEntry[] {
+  const own = entries.find((e) => e.kind === 'cross' && marks.get(e.id)?.text === 'Your cross');
+  if (!own) return [...entries];
+  return [{ ...own, group: 'Your cross' }, ...entries.filter((e) => e !== own)];
 }
 
 /** Whether a library id of the cross tab names something real (angle, quarter or cross). */

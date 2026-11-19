@@ -429,8 +429,11 @@ main {
 main:has(.result-bar) {
   padding-bottom: calc(var(--gc-tabbar-h) + var(--gc-safe-bottom) + 76px);
 }
+/* `backwards`, not `both`: a filling opacity animation keeps the element a
+   stacking context forever, which would trap every dialog opened inside the
+   route below the app bar and the rail. */
 .route {
-  animation: fade 0.12s ease both;
+  animation: fade 0.12s ease backwards;
 }
 .site-footer {
   margin: 32px 0 0;

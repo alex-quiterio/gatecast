@@ -1,0 +1,266 @@
+/* Library marks ("in my chart"), related chips, deeper line / circuit / cross copy.
+   Tokens come from styles.css; nothing here relies on colour alone. */
+
+/* ---- My chart chip and bar ------------------------------------------------ */
+.lib-mine-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+}
+.lib-mine-bar p {
+  margin: 0;
+  flex: 1 1 220px;
+}
+.my-chart-chip .btn {
+  max-width: 100%;
+  min-height: 32px;
+  border-radius: 999px;
+  border-color: var(--gc-accent);
+  background: var(--gc-accent-soft);
+}
+.my-chart-chip .btn > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.my-chart-chip .menu-list {
+  right: auto;
+  left: 0;
+  width: max-content;
+  max-width: min(360px, calc(100vw - 32px));
+}
+.menu-item.is-separated {
+  margin-top: 4px;
+  border-top: 1px solid var(--gc-border);
+  border-radius: 0 0 var(--gc-radius-sm) var(--gc-radius-sm);
+}
+.menu-item.is-checked {
+  font-weight: 600;
+}
+.btn-mine.is-on,
+.pin.is-on {
+  color: var(--gc-mine);
+  border-color: var(--gc-mine);
+}
+.btn-mine.is-on svg,
+.pin.is-on svg {
+  fill: currentColor;
+}
+.pin {
+  flex: none;
+}
+
+/* ---- Badges and counts ---------------------------------------------------- */
+.mine-badge.is-quiet {
+  color: var(--gc-muted);
+  background: transparent;
+  border-color: var(--gc-border-hi);
+  border-style: dashed;
+}
+.mine-callout {
+  margin: 0 0 12px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: var(--gc-accent-soft);
+  border-left: 3px solid var(--gc-accent);
+  border-radius: var(--gc-radius-sm);
+}
+.mine-callout.is-quiet {
+  background: transparent;
+  border-left-style: dashed;
+  border-color: var(--gc-border-hi);
+  color: var(--gc-muted);
+}
+.tab-count {
+  margin-left: 6px;
+  padding: 0 6px;
+  font: 600 11px/16px var(--gc-font-mono);
+  color: var(--gc-text);
+  background: var(--gc-accent-soft);
+  border: 1px solid var(--gc-accent);
+  border-radius: 999px;
+}
+
+/* ---- Cross rows ----------------------------------------------------------- */
+.lib-meta {
+  color: var(--gc-muted);
+  font-size: 12px;
+}
+.lib-gates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 2px;
+  padding: 0 12px;
+  list-style: none;
+}
+.chip-static {
+  cursor: default;
+  min-height: 20px;
+  padding: 0 6px;
+}
+.chip-static:hover {
+  border-color: var(--gc-border);
+}
+.chip-static.is-sun {
+  border-color: var(--gc-accent);
+  background: var(--gc-accent-soft);
+}
+.cross-theme {
+  margin: 2px 0 6px;
+  color: var(--gc-muted);
+  font-style: italic;
+}
+.cross-summary {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.cross-more {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+/* ---- Related chips -------------------------------------------------------- */
+.related,
+.read-more {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gc-border);
+}
+.related h4,
+.read-more h4 {
+  margin: 0;
+}
+.related-row {
+  display: grid;
+  gap: 4px;
+}
+.related-label {
+  color: var(--gc-muted);
+  font-size: 12px;
+}
+.related-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.related-chips .chip {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-decoration: none;
+}
+.read-more {
+  margin-top: 16px;
+}
+
+/* ---- Lines: flow and stress ---------------------------------------------- */
+.line-extras {
+  display: grid;
+  gap: 2px;
+  margin-top: 4px;
+}
+.line-more summary {
+  display: inline-block;
+  min-height: 24px;
+  padding: 2px 0;
+  color: var(--gc-muted);
+  font: 600 11px/20px var(--gc-font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.line-more[open] summary {
+  color: var(--gc-text);
+}
+.line-more p {
+  margin: 0 0 6px;
+  padding-left: 10px;
+  font-size: 13px;
+  color: var(--gc-muted);
+  border-left: 2px solid var(--gc-border-hi);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Circuits: deeper copy ------------------------------------------------ */
+.circuit-deep {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0;
+}
+.stream-deep {
+  margin: 4px 0 6px;
+  padding-left: 10px;
+  border-left: 2px solid var(--gc-border);
+}
+.deep-label {
+  margin: 0;
+  color: var(--gc-muted);
+  font: 600 11px/1.4 var(--gc-font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.checklist {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.checklist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 28px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.checklist input {
+  flex: none;
+  margin-top: 3px;
+  accent-color: var(--gc-accent);
+}
+.checklist input:checked + span {
+  color: var(--gc-muted);
+  text-decoration: line-through;
+}
+.cc-pair {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--gc-surface-2);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius);
+}
+.cc-pair h4 {
+  margin: 0 0 4px;
+}
+.cc-pair p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Small screens -------------------------------------------------------- */
+@media (max-width: 720px) {
+  .my-chart-chip,
+  .my-chart-chip .btn {
+    max-width: 100%;
+  }
+  .related-chips .chip,
+  .lib-gates .chip {
+    min-height: 32px;
+  }
+  .line-more summary {
+    min-height: 32px;
+  }
+  .checklist label {
+    min-height: 36px;
+  }
+}

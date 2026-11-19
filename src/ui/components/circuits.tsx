@@ -6,6 +6,7 @@ import type { Circuit, CircuitBreakdown, Stream } from '@content/schema';
 import { circuitBars, dominantSentence } from '@ui/circuit-logic';
 import { parseSelection } from '@ui/selection-logic';
 import { centerLabel, channelId } from '@ui/views/common';
+import { CircuitDeep, StreamDeep } from './circuit-deep';
 import { Icon } from './icons';
 import { Chip } from './info-button';
 
@@ -109,10 +110,12 @@ function CircuitBody({
   circuit,
   breakdown,
   selected,
+  chart,
 }: {
   circuit: Circuit;
   breakdown: CircuitBreakdown;
   selected: string | undefined;
+  chart: Chart;
 }) {
   const content = CIRCUITS[circuit];
   const share = breakdown.circuits.find((c) => c.circuit === circuit);
@@ -128,6 +131,7 @@ function CircuitBody({
       {content.tagline ? <p class="circuit-tagline">{content.tagline}</p> : null}
       {content.summary ? <p class="fact-text">{content.summary}</p> : null}
       {content.theme ? <p class="fact-text muted">{content.theme}</p> : null}
+      <CircuitDeep circuit={circuit} chart={chart} />
       {streams.map(({ stream, channels }) => {
         const s = STREAMS[stream];
         const sel = selected === `stream:${stream}`;
@@ -146,6 +150,7 @@ function CircuitBody({
               </span>
             </button>
             {s.summary ? <p class="fact-text small">{s.summary}</p> : null}
+            <StreamDeep stream={stream} />
             <ChannelChips channels={channels} selected={selected} />
           </div>
         );
@@ -270,7 +275,12 @@ export function CircuitsPanel({ chart, selected, onClear, onOpenDetail }: Circui
               </div>
               {isOpen ? (
                 <div id={`circuit-body-${circuit}`}>
-                  <CircuitBody circuit={circuit} breakdown={breakdown} selected={selected} />
+                  <CircuitBody
+                    circuit={circuit}
+                    breakdown={breakdown}
+                    selected={selected}
+                    chart={chart}
+                  />
                 </div>
               ) : null}
             </li>
@@ -338,10 +348,12 @@ export function CircuitDetailBody({ circuit, chart, stream }: CircuitDetailBodyP
       {content.summary ? <p class="fact-text">{content.summary}</p> : null}
       {content.theme ? <p class="fact-text muted">{content.theme}</p> : null}
       {count ? <p class="fact-text">{count}</p> : null}
+      <CircuitDeep circuit={circuit} chart={chart} />
       {groups.map((g) => (
         <section key={g.key} class={`stream${stream && g.key === stream ? ' is-selected' : ''}`}>
           <h4 class="stream-pick plain">{g.title}</h4>
           {g.summary ? <p class="fact-text small">{g.summary}</p> : null}
+          {g.key !== 'rest' ? <StreamDeep stream={g.key as Stream} /> : null}
           <ul class="channel-rows">
             {g.ids.map((id) => {
               const ch = CHANNEL_TABLE[id];
