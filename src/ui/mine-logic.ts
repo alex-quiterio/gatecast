@@ -46,6 +46,23 @@ export function writeMyChartSetting(
   }
 }
 
+/** Names longer than this are shortened to initials where space is tight. */
+export const SHORT_NAME_MAX = 18;
+
+/**
+ * A name that fits a chip: a long name keeps its last word and shortens the
+ * others to initials, e.g. `Isabella Maria Costa Ferreira` becomes
+ * `I.M.C.Ferreira`. Short and one-word names are returned unchanged.
+ */
+export function shortName(name: string, max: number = SHORT_NAME_MAX): string {
+  const trimmed = name.trim().replace(/\s+/g, ' ');
+  if (trimmed.length <= max) return trimmed;
+  const words = trimmed.split(' ');
+  if (words.length < 2) return trimmed;
+  const last = words.pop() as string;
+  return `${words.map((w) => `${Array.from(w)[0]}.`).join('')}${last}`;
+}
+
 /** Whether two settings point at the same chart (by encoded input). */
 export function sameInput(a: BirthInput | undefined, b: BirthInput | undefined): boolean {
   return Boolean(a && b && encodePerson(a) === encodePerson(b));

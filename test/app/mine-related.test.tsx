@@ -12,6 +12,7 @@ import {
   mineMarks,
   pinProps,
   readMyChartSetting,
+  shortName,
   tabCount,
   writeMyChartSetting,
   type MyChartSetting,
@@ -157,6 +158,19 @@ describe('components', () => {
       rememberChart: noop,
     };
   }
+  test('long names shorten to initials and the last name; short ones stay', () => {
+    expect(shortName('Isabella Maria Costa Ferreira')).toBe('I.M.C.Ferreira');
+    expect(shortName('Ada Lovelace')).toBe('Ada Lovelace');
+    expect(shortName('  Ada   Lovelace ')).toBe('Ada Lovelace');
+    expect(shortName('Wolfeschlegelsteinhausen-Bergdorff')).toBe(
+      'Wolfeschlegelsteinhausen-Bergdorff',
+    );
+    expect(shortName('Élodie Anne-Marie Dubois Lefèvre')).toBe('É.A.D.Lefèvre');
+    expect(shortName('')).toBe('');
+    expect(chipText({ kind: 'auto' }, fakeChart({ name: 'Isabella Maria Costa Ferreira' }))).toBe(
+      'Marking entries for: I.M.C.Ferreira (change)',
+    );
+  });
   test('chip text and menu choose', () => {
     expect(chipText({ kind: 'auto' }, undefined)).toContain('No chart');
     expect(chipText({ kind: 'none' }, undefined)).toContain('nobody');

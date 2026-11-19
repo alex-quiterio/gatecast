@@ -20,6 +20,7 @@ import {
   mineFilterLabel,
   mineIdSet,
   mineMarks,
+  shortName,
   tabCount,
   tabCountLabel,
   type MineMark,
@@ -265,7 +266,7 @@ export function LibraryView({
                 >
                   {mineFilterLabel(tab)}
                   {myChart?.input.name ? (
-                    <span class="fchip-name">&nbsp;({myChart.input.name})</span>
+                    <span class="fchip-name">&nbsp;({shortName(myChart.input.name)})</span>
                   ) : null}
                 </button>
               </div>

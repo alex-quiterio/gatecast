@@ -1,6 +1,6 @@
 import type { Chart } from '@/types';
 import { useApp } from '@ui/context';
-import { sameInput, type MyChartSetting } from '@ui/mine-logic';
+import { sameInput, shortName, type MyChartSetting } from '@ui/mine-logic';
 import type { SavedPerson } from '@ui/storage';
 import { Menu, type MenuItem } from './menu';
 
@@ -8,7 +8,7 @@ import { Menu, type MenuItem } from './menu';
 export function chipText(setting: MyChartSetting, chart: Chart | undefined): string {
   if (setting.kind === 'none') return 'Marking entries for: nobody (change)';
   if (!chart) return 'No chart selected (choose)';
-  return `Marking entries for: ${chart.input.name || 'Unnamed'} (change)`;
+  return `Marking entries for: ${shortName(chart.input.name ?? '') || 'Unnamed'} (change)`;
 }
 
 /** Menu entries of the chip: saved charts, the automatic default, and none. */
